@@ -2,72 +2,170 @@ import java.util.*;
 
 public class App {
     static Scanner scanner = new Scanner(System.in);
-    
+    static int RONDAS_TOTALES;
     public static void main(String[] args) throws Exception {
         
         ArrayList<Jugador> jugadores = new ArrayList<Jugador>();
-        Baraja baraja = new Baraja();
-        baraja.crearBaraja();
-        baraja.mezclar();
-
-
+        
         for (int k = 0; k < 4; k++){
-            Mano mano = baraja.repartir();
-            Jugador jugador = new Jugador(mano,Jugador.Role.Nada);
+            Jugador jugador = new Jugador(new Mano(new ArrayList<Carta>(), null),Jugador.Role.Nada);
             jugador.setNombre("Jugador " + k);
+            jugador.miRole = Jugador.Role.Nada;
             jugador.numero = k;
             jugadores.add(jugador);
         }
+        
+        Baraja baraja = new Baraja();
 
-        int turno = 0;
+        ArrayList<Integer> ordenJugadores = new ArrayList<Integer>();
+
+        // Defenir rondas totales
         while (true) {
-            CartasEnJuego cartasEnJuego = new CartasEnJuego();
-            int nJugadoresPasan = 0;
+            try {
+                
+                System.out.println("¿Cuantas rondas quieres jugar?");
+                String rondaString = scanner.nextLine();
+                RONDAS_TOTALES = Integer.parseInt(rondaString);
+                break;
+                
+            } catch (Exception e) {
+                System.out.println("Tienes que poner un número");
+            }
+        }
+        
+        int rondas = RONDAS_TOTALES;
 
+        while (rondas > 0) {
+
+            baraja.crearBaraja();
+            baraja.mezclar();
+
+            System.out.println("¿Desea continuar?");
+            String seguir = scanner.nextLine();
+            while (!seguir.equals("s")) {
+                seguir = scanner.nextLine();
+            }
             for (Jugador jugador: jugadores){
-                jugador.pasa = false;
+                Mano mano = baraja.repartir();
+                jugador.mano = mano;
             }
 
-            while (true) {
-                // jugador0 nosotros
-                int tamaño = 0;
+            int turno = 0;
+            boolean fin_partida = false;
 
-               
-                if (cartasEnJuego.ultiMano() != null && cartasEnJuego.ultiMano().cartas != null){
-                    tamaño = cartasEnJuego.ultiMano().cartas.size();
-                }
-
-                switch (turno) {
-                    case 0:
-                        menuJugador(cartasEnJuego,nJugadoresPasan,jugadores.get(0));
-                        
-                        turno = 1;
+            if (rondas != RONDAS_TOTALES){
+                for (Jugador jugador: jugadores){
+                    if (jugador.miRole == Jugador.Role.Comemierda){
                         break;
+                    }
+                    turno ++;
+                }
+            }
+
+            while (!fin_partida) {
+                CartasEnJuego cartasEnJuego = new CartasEnJuego();
+                int nJugadoresPasan = 0;
+                
+                for (Jugador jugador: jugadores){
+                    jugador.pasa = false;
+                }
+            
+                while (true) {
+                    // jugador0 nosotros
+                    int tamaño = 0;
+                    
+                
+                    if (cartasEnJuego.ultiMano() != null && cartasEnJuego.ultiMano().cartas != null){
+                        tamaño = cartasEnJuego.ultiMano().cartas.size();
+                    }
+                    int turno_anterior = turno;
+                    if (!jugadores.get(turno).getFinalPartida()){
+                        switch (turno) {
+                            case 0:
+                                menuJugador(cartasEnJuego,nJugadoresPasan,jugadores.get(0));
+                                break;
+                            
+                            default:
+                                jugarJugador(cartasEnJuego,jugadores.get(turno),tamaño,nJugadoresPasan);
+                                break;
+                        }
                         
-                    default:
-                        jugarJugador(cartasEnJuego,jugadores.get(turno),tamaño,nJugadoresPasan);
-                        if (turno + 1 >= 4){
-                            turno = 0;
-                        }else{
-                            turno ++;
+                        if (jugadores.get(turno_anterior).getFinalPartida()){
+                            ordenJugadores.add(turno_anterior);
+                        }
+                    }
+
+                    if (turno + 1 >= 4){
+                        turno = 0;
+                    }else{
+                        turno ++;
+                    }
+
+                    if (ordenJugadores.size() == 3){
+                        // Fin partida
+                        fin_partida = true;
+
+                        int k = 1;
+                        for (Integer integer : ordenJugadores) {
+                            Jugador jugador2 = jugadores.get(integer);
+                            switch (k) {
+                                case 1:
+                                    jugador2.miRole = Jugador.Role.Presidente;
+                                    jugador2.puntos += 3;
+                                    break;
+                                case 2:
+                                    jugador2.miRole = Jugador.Role.VicePresidente;
+                                    jugador2.puntos += 1;
+                                    break;
+                                case 3:
+                                    jugador2.miRole = Jugador.Role.ViceComemierda;
+                                    jugador2.puntos += 0;
+                                    break;
+                                case 4:
+                                    jugador2.miRole = Jugador.Role.Comemierda;
+                                    jugador2.puntos -= 2;
+                                    break;
+
+                                default:
+                                    break;
+                            }
+                            k++;
+                        }
+
+                        // Para establecer al comemierda;
+                        ArrayList<Integer> faltantes = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));
+                        faltantes.removeAll(ordenJugadores);
+                        int indexComemierda = faltantes.get(0);
+                        jugadores.get(indexComemierda).miRole = Jugador.Role.Comemierda;
+                        jugadores.get(indexComemierda).puntos -= 2;
+
+                        System.out.println("Fin partida");
+                        for (Jugador jugador : jugadores) {
+                            jugador.verResultadosPartida();
                         }
                         break;
-                }
-
-
-                // Para saber si todos han pasado ya
-                nJugadoresPasan = 0;
-                for (Jugador jugador: jugadores){
-                    if (jugador.pasa){
-                        nJugadoresPasan++;
+                    }
+                        
+                    // Para saber si todos han pasado ya
+                    nJugadoresPasan = 0;
+                    for (Jugador jugador: jugadores){
+                        if (jugador.pasa || jugador.getFinalPartida()){
+                            nJugadoresPasan++;
+                        }
+                    }
+                    if (nJugadoresPasan >= 3){
+                        turno = cartasEnJuego.ultiMano().jugador.numero;
+                        break;
                     }
                 }
-                if (nJugadoresPasan >= 3){
-                    turno = cartasEnJuego.ultiMano().jugador.numero;
-                    break;
-                }
             }
+            rondas--;
         }   
+    
+        System.out.println("Fin partida");
+        for (Jugador jugador : jugadores) {
+            jugador.verResultadosPartida();
+        }
     }
 
     private static void menuJugador(CartasEnJuego cartasEnJuego,int nJugadoresPasan,Jugador jugador){
@@ -238,6 +336,9 @@ class Jugador{
         this.nombre = nombre;
     }
 
+    public boolean getFinalPartida(){
+        return this.mano.cartas.size() == 0;
+    }
 
 
     public void verMano(){
@@ -254,6 +355,7 @@ class Jugador{
     public Mano echarCarta(int tamaño, int valor){
         mano.ordenarManoAscendente();
         ArrayList<Carta> cartas_lanzar = new ArrayList<Carta>();
+        
         
         int valor_actual = 0;
         for (Carta carta: mano.cartas) {
@@ -272,11 +374,17 @@ class Jugador{
             cartas_lanzar = new ArrayList<Carta>();
         }
 
+
         //Eliminamos las cartas que vamos a lanzar de nuestra mano
         this.mano.cartas.removeAll(cartas_lanzar);
+        
         Mano nuevaMano = new Mano(cartas_lanzar,this);
         this.mano.ordenarMano();
         return nuevaMano;
+    }
+
+    public void verResultadosPartida(){
+        System.out.println(this.nombre + " ha conseguido " + this.puntos);
     }
 
     public enum  Role {
