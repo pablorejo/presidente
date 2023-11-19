@@ -58,8 +58,93 @@ public class App {
                     if (jugador.miRole == Jugador.Role.Comemierda){
                         break;
                     }
-                    turno ++;
                 }
+                Mano comemierda = new Mano(new ArrayList<Carta>(), null);
+                Mano viceComemierda = new Mano(new ArrayList<Carta>(), null);
+                Mano vicePresidente = new Mano(new ArrayList<Carta>(), null);
+                Mano presidente = new Mano(new ArrayList<Carta>(), null);
+
+                //#region Obtener cartas de los jugadores
+                for (Jugador jugador: jugadores){
+                    if (jugador.miRole == Jugador.Role.Comemierda){
+                        comemierda = jugador.getNCartas(2, true);
+                        
+                    }else if (jugador.miRole == Jugador.Role.ViceComemierda){
+                        viceComemierda = jugador.getNCartas(1, true);
+                    }else if (jugador.numero == 0){
+                        int cartasADar = 0;
+                        if (jugador.miRole == Jugador.Role.VicePresidente){
+                            cartasADar = 1;
+                        }else if (jugador.miRole == Jugador.Role.Presidente){
+                            cartasADar = 2;
+                        }
+                        Mano manoADar;
+                        while (true) {
+                            try {
+                                jugador.verMano();
+                                System.out.println("Elige " + cartasADar + " cartas para dar a tu rival");
+
+                                String cartas = scanner.nextLine();
+                                String[] selecionadas = cartas.split(",");
+                
+                                ArrayList<Carta> cartas_lanzadas = new ArrayList<Carta>();
+                                
+                                for (String seleccion : selecionadas){
+                                    int numero_index = Integer.parseInt(seleccion);
+                                    Carta carta= jugador.getCarta(numero_index);
+                                    cartas_lanzadas.add(carta);
+                                }
+                                
+                                jugador.mano.cartas.removeAll(cartas_lanzadas);
+                                manoADar = new Mano(cartas_lanzadas,jugador);
+
+                                if (manoADar.cartas.size() == cartasADar){
+                                    break;
+                                }else{
+                                    System.out.println("No as dado las cartas necesarias.");
+                                }
+                            } catch (Exception e) {
+                                // TODO: handle exception
+                            }
+                        }
+
+                        switch (cartasADar) {
+                            case 1:
+                                vicePresidente = manoADar;
+                                break;
+                            case 2:
+                                presidente = manoADar;
+                            default:
+                                break;
+                        }
+                    } else{
+                        if (jugador.miRole == Jugador.Role.VicePresidente){
+                            vicePresidente = jugador.getNCartas(1, false);
+                        }else if (jugador.miRole == Jugador.Role.Presidente){
+                            presidente = jugador.getNCartas(2, false);
+                        }
+                    }
+
+                }
+                //#endregion Obtener cartas de los jugadores
+
+                //#region Dar cartas a los jugadores
+                for (Jugador jugador: jugadores){
+                    if (jugador.miRole == Jugador.Role.Comemierda){
+                        jugador.mano.cartas.addAll(presidente.cartas);
+                    }
+                    else if (jugador.miRole == Jugador.Role.ViceComemierda){
+                        jugador.mano.cartas.addAll(vicePresidente.cartas);
+                    }
+                    else if (jugador.miRole == Jugador.Role.VicePresidente){
+                        jugador.mano.cartas.addAll(viceComemierda.cartas);
+                    }
+                    else if (jugador.miRole == Jugador.Role.Presidente){
+                        jugador.mano.cartas.addAll(comemierda.cartas);
+                    }
+                }
+                //#endregion Dar cartas a los jugadores
+
             }
 
             while (!fin_partida) {
@@ -351,7 +436,12 @@ class Jugador{
         return this.mano.cartas.get(carta);
     }
 
-    /*Esta función echa las cartas mas altas que tenga */
+    /**
+     * Esta función echa las cartas mas bajas que tenga el jugador con la condicion de que supere un cierto tamaño y valor
+     * @param tamaño numero de cartas de igual valor que se necesitan para jugar
+     * @param valor las cartas tendran que tener mas de este valor para poder jugar
+     * @return Un objeto Mano que contendrá las cartas que decidio echar.
+     */
     public Mano echarCarta(int tamaño, int valor){
         mano.ordenarManoAscendente();
         ArrayList<Carta> cartas_lanzar = new ArrayList<Carta>();
@@ -381,6 +471,25 @@ class Jugador{
         Mano nuevaMano = new Mano(cartas_lanzar,this);
         this.mano.ordenarMano();
         return nuevaMano;
+    }
+
+    /**
+     * Esta funcion devolverá n cartas en un objeto Mano mas buenas o mas malas del mazo del jugador.
+     * @param n numero de cartas a obtener
+     * @param buenas si son cartas buenas a true y si son malas a false
+     */
+    public Mano getNCartas(int n, boolean buenas){
+        if (buenas){
+            this.mano.ordenarMano();
+        }else{
+            this.mano.ordenarManoAscendente();
+        }
+
+        List<Carta> subLista = this.mano.cartas.subList(0, n);
+        Mano cartasADar = new Mano(new ArrayList<Carta>(subLista), this);
+        this.mano.cartas.removeAll(subLista);
+        this.mano.ordenarMano();
+        return cartasADar;
     }
 
     public void verResultadosPartida(){
