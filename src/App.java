@@ -89,6 +89,7 @@ public class App {
                 
                                 ArrayList<Carta> cartas_lanzadas = new ArrayList<Carta>();
                                 
+                                
                                 for (String seleccion : selecionadas){
                                     int numero_index = Integer.parseInt(seleccion);
                                     Carta carta= jugador.getCarta(numero_index);
@@ -145,6 +146,20 @@ public class App {
                 }
                 //#endregion Dar cartas a los jugadores
 
+            }else if (rondas == RONDAS_TOTALES){
+                for (Jugador jugador : jugadores) {
+                    boolean fin = false;
+                    for (Carta carta : jugador.mano.cartas){
+                        if (carta.getValor() == 3 && carta.getPalo().equals("Oros")){
+                            turno = jugador.numero;
+                            fin = true;
+                            break;
+                        }
+                    }
+                    if (fin){
+                        break;
+                    }
+                }
             }
 
             while (!fin_partida) {
@@ -167,7 +182,14 @@ public class App {
                     if (!jugadores.get(turno).getFinalPartida()){
                         switch (turno) {
                             case 0:
-                                menuJugador(cartasEnJuego,nJugadoresPasan,jugadores.get(0));
+                                Mano uMano = cartasEnJuego.ultiMano();
+                                
+                                if (uMano == null || uMano.cartas.get(0).getValor() != 13){
+                                    menuJugador(cartasEnJuego,nJugadoresPasan,jugadores.get(0));
+                                }else{
+                                    System.out.println("Han echado el dos de oros no puedes seguir");
+                                    jugadores.get(0).pasa = true;
+                                }
                                 break;
                             
                             default:
@@ -398,6 +420,11 @@ class Carta {
     public int getValor(){
         return this.valor;
     }
+
+    public String getPalo(){
+        return this.palo;
+    }
+
     public String getCarta(){
         return (String.valueOf(numero) + " " + palo);
     }
@@ -535,6 +562,7 @@ class Mano{
                 i++;
             }
         }
+        System.out.println("");
     }
 
     public void ordenarMano(){
