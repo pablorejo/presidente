@@ -1,5 +1,5 @@
 @echo off
-del bin/*
-javac -d bin -sourcepath src src/*.java
-java bin/*.java
-del bin/*.txt
+del /Q bin\*.*
+javac -d bin -sourcepath src src\*.java
+java -cp bin App
+del /Q bin\*.txt

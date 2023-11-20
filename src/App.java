@@ -23,7 +23,7 @@ public class App {
         while (true) {
             try {
                 
-                System.out.println("¿Cuantas rondas quieres jugar?");
+                System.out.println("Cuantas rondas quieres jugar?");
                 String rondaString = scanner.nextLine();
                 RONDAS_TOTALES = Integer.parseInt(rondaString);
                 break;
@@ -40,11 +40,12 @@ public class App {
             baraja.crearBaraja();
             baraja.mezclar();
 
-            System.out.println("¿Desea continuar?");
+            System.out.println("Desea continuar?");
             String seguir = scanner.nextLine();
-            while (!seguir.equals("s")) {
-                seguir = scanner.nextLine();
-            }
+            if (!seguir.equalsIgnoreCase("s") && !seguir.equalsIgnoreCase("si")) {
+                System.exit(0);
+             }
+           
             for (Jugador jugador: jugadores){
                 Mano mano = baraja.repartir();
                 jugador.mano = mano;
@@ -172,11 +173,11 @@ public class App {
             
                 while (true) {
                     // jugador0 nosotros
-                    int tamaño = 0;
+                    int tamano = 0;
                     
                 
                     if (cartasEnJuego.ultiMano() != null && cartasEnJuego.ultiMano().cartas != null){
-                        tamaño = cartasEnJuego.ultiMano().cartas.size();
+                        tamano = cartasEnJuego.ultiMano().cartas.size();
                     }
                     int turno_anterior = turno;
                     if (!jugadores.get(turno).getFinalPartida()){
@@ -193,7 +194,7 @@ public class App {
                                 break;
                             
                             default:
-                                jugarJugador(cartasEnJuego,jugadores.get(turno),tamaño,nJugadoresPasan);
+                                jugarJugador(cartasEnJuego,jugadores.get(turno),tamano,nJugadoresPasan);
                                 break;
                         }
                         
@@ -280,12 +281,12 @@ public class App {
         while (malLanzado && !jugador.pasa) {
             jugador.verMano();
             
-            System.out.println("¿Que carta o cartas quiere lanzar? [ejem: 1,2]");
+            System.out.println("Que carta o cartas quiere lanzar? [ejem: 1,2]");
             System.out.println("O pasar [ejem: pass]");
             cartasEnJuego.verUltimaMano();
             
             String cartas = scanner.nextLine();
-            if (cartas.equals("pass")){
+            if (cartas.equalsIgnoreCase("pass")){
                 jugador.pasa = true;
                 nJugadoresPasan ++;
                 cartasEnJuego.manos.add(new Mano(new ArrayList<Carta>(), jugador));
@@ -305,14 +306,14 @@ public class App {
                 
                 int valor_max = 0;
                 int valor_actual = cartas_lanzadas.get(0).getValor();
-                int tamaño_maximo = 0;
+                int tamano_maximo = 0;
                 if (!cartasEnJuego.manos.isEmpty()){
                     valor_max = cartasEnJuego.ultiMano().cartas.get(0).getValor();
-                    tamaño_maximo = cartasEnJuego.ultiMano().cartas.size();
+                    tamano_maximo = cartasEnJuego.ultiMano().cartas.size();
                 }
 
                 for (Carta carta: cartas_lanzadas){
-                    if (carta.getValor() != valor_actual && (cartas_lanzadas.size() != tamaño_maximo && carta.getValor() != 13)){
+                    if (carta.getValor() != valor_actual && (cartas_lanzadas.size() != tamano_maximo && carta.getValor() != 13)){
                         malLanzado = true;
                         break;
                     }else{
@@ -338,15 +339,13 @@ public class App {
         }
     }
 
-    public static void jugarJugador(CartasEnJuego cartasEnJuego, Jugador jugador, int tamaño, int nJugadoresPasan){
+    public static void jugarJugador(CartasEnJuego cartasEnJuego, Jugador jugador, int tamano, int nJugadoresPasan){
 
         int valor = 0;
         if (cartasEnJuego.ultiMano() != null && cartasEnJuego.ultiMano().cartas.size()>0){
             valor = cartasEnJuego.ultiMano().cartas.get(0).getValor();
         }
-    
-        Mano mano = jugador.echarCarta(tamaño,valor);
-
+        Mano mano = jugador.echarCarta(tamano,valor);
         if (mano.cartas.size() == 0){
             System.out.println(jugador.nombre + " Pasa");
             jugador.pasa = true;
@@ -403,6 +402,25 @@ class Carta {
         this.setValor();
     }   
 
+    private String getNumero(){
+        String retorno = "";
+        switch (this.numero) {
+            case 10:
+                retorno = "Rey";
+                break;
+            case 9:
+                retorno = "Caballo";
+                break;
+            case 8:
+                retorno = "Sota";
+                break;
+            default:
+                retorno = String.valueOf(numero);
+                break;
+        }
+        return retorno;
+    }
+
     public void setValor(){
         if (this.numero == 1){
             this.valor = 11;
@@ -426,7 +444,7 @@ class Carta {
     }
 
     public String getCarta(){
-        return (String.valueOf(numero) + " " + palo);
+        return (this.getNumero() + " de " + palo);
     }
 }
 
@@ -464,12 +482,12 @@ class Jugador{
     }
 
     /**
-     * Esta función echa las cartas mas bajas que tenga el jugador con la condicion de que supere un cierto tamaño y valor
-     * @param tamaño numero de cartas de igual valor que se necesitan para jugar
+     * Esta función echa las cartas mas bajas que tenga el jugador con la condicion de que supere un cierto tamano y valor
+     * @param tamano numero de cartas de igual valor que se necesitan para jugar
      * @param valor las cartas tendran que tener mas de este valor para poder jugar
      * @return Un objeto Mano que contendrá las cartas que decidio echar.
      */
-    public Mano echarCarta(int tamaño, int valor){
+    public Mano echarCarta(int tamano, int valor){
         mano.ordenarManoAscendente();
         ArrayList<Carta> cartas_lanzar = new ArrayList<Carta>();
         
@@ -483,11 +501,11 @@ class Jugador{
                 cartas_lanzar = new ArrayList<Carta>();
             }
 
-            if (cartas_lanzar.size() == tamaño || tamaño == 0){
+            if (cartas_lanzar.size() == tamano || tamano == 0){
                 break;
             }
         }
-        if (cartas_lanzar.size() != tamaño && tamaño != 0){
+        if (cartas_lanzar.size() != tamano && tamano != 0){
             cartas_lanzar = new ArrayList<Carta>();
         }
 
