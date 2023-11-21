@@ -19,7 +19,6 @@ public class App {
         
         Baraja baraja = new Baraja();
 
-        ArrayList<Integer> ordenJugadores = new ArrayList<Integer>();
 
         // Defenir rondas totales
         while (true) {
@@ -55,7 +54,9 @@ public class App {
 
             int turno = 0;
             boolean fin_partida = false;
+            ArrayList<Integer> ordenJugadores = new ArrayList<Integer>();
 
+            
             if (rondas != RONDAS_TOTALES){
                 for (Jugador jugador: jugadores){
                     if (jugador.miRole == Jugador.Role.Comemierda){
