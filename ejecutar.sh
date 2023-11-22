@@ -13,6 +13,3 @@ javac -d bin -sourcepath src src/*.java
 
 # Ejecutar la aplicación desde el directorio bin
 java -cp bin App
-
-# Borrar archivos .txt en el directorio bin
-rm -f bin/*.txt

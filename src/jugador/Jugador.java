@@ -3,15 +3,39 @@ import java.util.*;
 public class Jugador{
     public  Mano mano = new Mano(new ArrayList<Carta>(),this);
     public boolean pasa = false;
-    public int puntos = 0;
+    private int puntos = 0;
     String nombre = "";
-    public Role miRole;
+    private Role miRole;
     public int numero = 0;
 
     public Jugador(Mano mano,Role role){
         this.mano = mano;
         mano.jugador = this;
         this.miRole = role;
+    }
+
+    public void setRole(Role rol){
+        switch (rol) {
+            case Presidente:
+                this.puntos += 3;
+                break;
+            case VicePresidente:
+                this.puntos += 1;
+                break;
+            case ViceComemierda:
+                this.puntos -= 1;
+                break;
+            case Comemierda:
+                this.puntos -= 3;
+                break;
+            default:
+                break;
+        }
+        this.miRole = rol;
+    }
+
+    public Role getRole(){
+        return this.miRole;
     }
 
     public void setNombre(String nombre){

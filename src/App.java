@@ -12,7 +12,7 @@ public class App {
         for (int k = 0; k < 4; k++){
             Jugador jugador = new Jugador(new Mano(new ArrayList<Carta>(), null),Jugador.Role.Nada);
             jugador.setNombre("Jugador " + k);
-            jugador.miRole = Jugador.Role.Nada;
+            jugador.setRole(Jugador.Role.Nada);
             jugador.numero = k;
             jugadores.add(jugador);
         }
@@ -40,13 +40,19 @@ public class App {
 
             baraja.crearBaraja();
             baraja.mezclar();
-
-            System.out.println("Desea continuar?");
-            String seguir = scanner.nextLine();
-            if (!seguir.equalsIgnoreCase("s") && !seguir.equalsIgnoreCase("si")) {
-                System.exit(0);
-             }
-           
+            
+            while (true) {
+                System.out.println("Desea continuar? (s/n)");
+                String seguir = scanner.nextLine();
+                if (seguir.equalsIgnoreCase("n") || seguir.equalsIgnoreCase("no")) {
+                    System.exit(0);
+                }else if (seguir.equalsIgnoreCase("s") || seguir.equalsIgnoreCase("si")) {
+                    break;
+                }else{
+                    System.out.println("Introduzca si o no");
+                }
+            }
+                
             for (Jugador jugador: jugadores){
                 Mano mano = baraja.repartir();
                 jugador.mano = mano;
@@ -59,7 +65,7 @@ public class App {
             
             if (rondas != RONDAS_TOTALES){
                 for (Jugador jugador: jugadores){
-                    if (jugador.miRole == Jugador.Role.Comemierda){
+                    if (jugador.getRole() == Jugador.Role.Comemierda){
                         break;
                     }
                 }
@@ -70,16 +76,16 @@ public class App {
 
                 //#region Obtener cartas de los jugadores
                 for (Jugador jugador: jugadores){
-                    if (jugador.miRole == Jugador.Role.Comemierda){
+                    if (jugador.getRole() == Jugador.Role.Comemierda){
                         comemierda = jugador.getNCartas(2, true);
                         
-                    }else if (jugador.miRole == Jugador.Role.ViceComemierda){
+                    }else if (jugador.getRole() == Jugador.Role.ViceComemierda){
                         viceComemierda = jugador.getNCartas(1, true);
                     }else if (jugador.numero == 0){
                         int cartasADar = 0;
-                        if (jugador.miRole == Jugador.Role.VicePresidente){
+                        if (jugador.getRole() == Jugador.Role.VicePresidente){
                             cartasADar = 1;
-                        }else if (jugador.miRole == Jugador.Role.Presidente){
+                        }else if (jugador.getRole() == Jugador.Role.Presidente){
                             cartasADar = 2;
                         }
                         Mano manoADar;
@@ -123,9 +129,9 @@ public class App {
                                 break;
                         }
                     } else{
-                        if (jugador.miRole == Jugador.Role.VicePresidente){
+                        if (jugador.getRole() == Jugador.Role.VicePresidente){
                             vicePresidente = jugador.getNCartas(1, false);
-                        }else if (jugador.miRole == Jugador.Role.Presidente){
+                        }else if (jugador.getRole() == Jugador.Role.Presidente){
                             presidente = jugador.getNCartas(2, false);
                         }
                     }
@@ -135,16 +141,17 @@ public class App {
 
                 //#region Dar cartas a los jugadores
                 for (Jugador jugador: jugadores){
-                    if (jugador.miRole == Jugador.Role.Comemierda){
+                    if (jugador.getRole() == Jugador.Role.Comemierda){
                         jugador.mano.cartas.addAll(presidente.cartas);
+                        turno = jugador.numero;
                     }
-                    else if (jugador.miRole == Jugador.Role.ViceComemierda){
+                    else if (jugador.getRole() == Jugador.Role.ViceComemierda){
                         jugador.mano.cartas.addAll(vicePresidente.cartas);
                     }
-                    else if (jugador.miRole == Jugador.Role.VicePresidente){
+                    else if (jugador.getRole() == Jugador.Role.VicePresidente){
                         jugador.mano.cartas.addAll(viceComemierda.cartas);
                     }
-                    else if (jugador.miRole == Jugador.Role.Presidente){
+                    else if (jugador.getRole() == Jugador.Role.Presidente){
                         jugador.mano.cartas.addAll(comemierda.cartas);
                     }
                 }
@@ -221,23 +228,16 @@ public class App {
                             Jugador jugador2 = jugadores.get(integer);
                             switch (k) {
                                 case 1:
-                                    jugador2.miRole = Jugador.Role.Presidente;
-                                    jugador2.puntos += 3;
+                                    jugador2.setRole(Jugador.Role.Presidente);
                                     break;
                                 case 2:
-                                    jugador2.miRole = Jugador.Role.VicePresidente;
-                                    jugador2.puntos += 1;
+                                    jugador2.setRole(Jugador.Role.VicePresidente);
                                     break;
                                 case 3:
-                                    jugador2.miRole = Jugador.Role.ViceComemierda;
-                                    jugador2.puntos += 0;
+                                    jugador2.setRole(Jugador.Role.ViceComemierda);
                                     break;
-                                case 4:
-                                    jugador2.miRole = Jugador.Role.Comemierda;
-                                    jugador2.puntos -= 2;
-                                    break;
-
                                 default:
+                                    jugador2.setRole(Jugador.Role.Nada);
                                     break;
                             }
                             k++;
@@ -247,8 +247,7 @@ public class App {
                         ArrayList<Integer> faltantes = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));
                         faltantes.removeAll(ordenJugadores);
                         int indexComemierda = faltantes.get(0);
-                        jugadores.get(indexComemierda).miRole = Jugador.Role.Comemierda;
-                        jugadores.get(indexComemierda).puntos -= 2;
+                        jugadores.get(indexComemierda).setRole(Jugador.Role.Comemierda);
 
                         System.out.println("Fin partida");
                         for (Jugador jugador : jugadores) {
@@ -273,10 +272,7 @@ public class App {
             rondas--;
         }   
     
-        System.out.println("Fin partida");
-        for (Jugador jugador : jugadores) {
-            jugador.verResultadosPartida();
-        }
+        System.out.println("Fin partida :)");
     }
 
     private static void menuJugador(CartasEnJuego cartasEnJuego,int nJugadoresPasan,Jugador jugador){
