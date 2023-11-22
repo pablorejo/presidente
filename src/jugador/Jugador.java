@@ -95,6 +95,10 @@ public class Jugador{
         
         Mano nuevaMano = new Mano(cartas_lanzar,this);
         this.mano.ordenarMano();
+
+        if (this.mano.cartas.size() == 0){
+            System.out.println(this.nombre + " ha terminado.");
+        }
         return nuevaMano;
     }
 
