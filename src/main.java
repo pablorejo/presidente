@@ -8,7 +8,9 @@ import jugador.Jugador;
 public class main {
     public static void main(String[] args) {
         Entrenamiento entreno = new Entrenamiento(new ArrayList<Jugador>(), new CartasEnJuego());
-        entreno.cargarIas();
+
+        // entreno.cargarIas();
+        entreno.crearIas();
         entreno.entrenar();
     }
 }

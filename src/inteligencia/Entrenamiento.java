@@ -17,9 +17,12 @@ public class Entrenamiento {
     ArrayList<Jugador> jugadores;
     CartasEnJuego cartasEnJuego;
     private static double probabilidadMutacion = 0.1;
-    private static int numeroDeBuenos = 2;
-    private static int numeroTotalDeIAs = 4;
-    private static int numeroDeEntrenamientos = 2;
+    private static int numeroTotalDeIAs = 100;
+    private static int numeroDeIasRecuperables = 20;
+    private static int numeroDeEntrenamientos = 100;
+    private static Double desgaste = 0.95;
+    private static Double fusion = 0.999;
+    private static String carpetaGuardarRedesNeuronales = "redesNeuronales/";
 
     public Entrenamiento(ArrayList<Jugador> jugadores,CartasEnJuego cartasEnJuego){
         this.jugadores = jugadores;
@@ -36,7 +39,7 @@ public class Entrenamiento {
     public void cargarIas(){
         for(int k = 0; k < numeroTotalDeIAs; k++){
             IA ia = new IA(null, k, jugadores, cartasEnJuego);
-            ia.recuperarRedNeuronal("IA_" + k + "_redNeuronal.dat");
+            ia.recuperarRedNeuronal(carpetaGuardarRedesNeuronales + "IA_" + k + "_redNeuronal.dat");
             ias.add(ia);
         }
     }
@@ -44,19 +47,28 @@ public class Entrenamiento {
     public void entrenar(){
         int n = 0;
         while (n < numeroDeEntrenamientos) {
+            System.out.println("Empezando ronda " + n);
             this.jugar();
+            System.out.println("Recombinando Ias\n");
+
             this.obtenerIAs();
             n++;
+
         }
         int k = 0;
         for (IA ia : ias) {
-            ia.miRed.guardarEnDisco("IA_" + k + "_redNeuronal.dat");
+            ia.guardarRedNeuronal(carpetaGuardarRedesNeuronales +  "IA_" + k + "_redNeuronal.dat");
             k++;
         }
     }
+
+    
+
     private void jugar(){
         for(int k = 0; k < numeroTotalDeIAs-3; k++){
-            for(int i = 0; i < numeroTotalDeIAs-3; i++){
+            
+            for (int i = k + 1 ;i < numeroTotalDeIAs-3; i ++){
+
                 ArrayList<Jugador> jugadores = new ArrayList<Jugador>();
                 Jugador jugador = new Jugador(new Mano(new ArrayList<Carta>(), null), Jugador.Role.Nada);
                 jugador.setIA(this.ias.get(k));
@@ -65,17 +77,20 @@ public class Entrenamiento {
 
                 int siguiente = i;
                 for (int j = 1; j <= 3; j++){
-                    if (i == k){
-                        siguiente = i+j;
-                    }
+                    siguiente += 1;
+
                     Jugador jugador2 = new Jugador(new Mano(new ArrayList<Carta>(), null), Jugador.Role.Nada);
                     jugador2.setIA(this.ias.get(siguiente));
                     this.ias.get(siguiente).jugador = jugador;
                     jugadores.add(jugador2);
+
                 }
                 this.jugadores = jugadores;
                 new Juego(jugadores);
+
             }
+
+            actualizarBarraDeCarga(k,numeroTotalDeIAs-4);
         }
     }
     /**
@@ -92,18 +107,17 @@ public class Entrenamiento {
         ArrayList<IA> ias2 = new ArrayList<IA>();
         
         Random random = new Random();
-        Double desgaste = 0.9;
+        
 
         int numeroDeIasCreadas = 0;
         while (numeroDeIasCreadas < numeroTotalDeIAs) {
-            for (int k = 0; k < ias.size(); k ++) {
-                Double probabilidadFusion = 0.99 * Math.pow(desgaste, k) ;
-                for (int i = k + 1; i < ias.size(); i ++) {
+            for (int k = 0; k < numeroDeIasRecuperables; k ++) {
+                Double probabilidadFusion = fusion * Math.pow(desgaste, k) ;
+                for (int i = k + 1; i < numeroDeIasRecuperables; i ++) {
                     if (probabilidadFusion > random.nextDouble()){
                         IA ia = combinarIas(ias.get(k), ias.get(i));
                         ias2.add(ia);
                         numeroDeIasCreadas ++;
-    
                     }
     
                     // Desgaste de la probabilidad
@@ -171,5 +185,39 @@ public class Entrenamiento {
         }
 
         return descendencia;
+    }
+
+    private static void actualizarBarraDeCarga(int progreso, int total) {
+        int longitudBarra = 50; // Longitud total de la barra de carga
+
+        // Calcula la cantidad de caracteres "#" para la barra de carga
+        int caracteresCarga = (int) (((double) progreso / total) * longitudBarra);
+
+        // Construye la barra de carga
+        StringBuilder barraCarga = new StringBuilder("[");
+        for (int i = 0; i < longitudBarra; i++) {
+            if (i < caracteresCarga) {
+                barraCarga.append("#");
+            } else {
+                barraCarga.append(" ");
+            }
+        }
+        barraCarga.append("]");
+
+        // Imprime la barra de carga en la misma línea
+        System.out.print("\r" + barraCarga + " " + progreso * 100 / total + "%");
+        System.out.flush();
+
+        // Espera un breve tiempo para que la barra de carga sea visible
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        // Si el progreso es completo, imprime una nueva línea
+        if (progreso == total) {
+            System.out.println();
+        }
     }
 }

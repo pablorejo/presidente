@@ -61,11 +61,6 @@ public class Juego {
                             presidente = jugador.getNCartas(2, false);
                         }
                     }
-
-                    if (jugador.mano.cartas.size() == 10){
-                        System.out.println("hola");
-                    }
-                    
                 }
                 //#endregion Obtener cartas de los jugadores
 
@@ -83,10 +78,6 @@ public class Juego {
                     }
                     else if (jugador.getRole() == Jugador.Role.Presidente){
                         jugador.mano.cartas.addAll(comemierda.cartas);
-                    }
-
-                    if (jugador.mano.cartas.size() > 10){
-                        System.out.println("hola");
                     }
                 }
                 //#endregion Dar cartas a los jugadores
@@ -174,10 +165,9 @@ public class Juego {
                         int indexComemierda = faltantes.get(0);
                         jugadores.get(indexComemierda).setRole(Jugador.Role.Comemierda);
 
-                        System.out.println("Fin partida");
-                        for (Jugador jugador : jugadores) {
-                            jugador.verResultadosPartida();
-                        }
+                        // for (Jugador jugador : jugadores) {
+                        //     jugador.verResultadosPartida();
+                        // }
                         break;
                     }
                         
@@ -190,7 +180,6 @@ public class Juego {
                     }
                     if (nJugadoresPasan >= 3){
                         turno = cartasEnJuego.ultiMano().jugador.numero;
-                        System.out.println("Se cierra la baraja");
                         break;
                     }
                 }
@@ -207,13 +196,11 @@ public class Juego {
         }
         Mano mano = jugador.echarCarta(tamano,valor);
         if (mano.cartas.size() == 0){
-            System.out.println(jugador.getNombre() + " Pasa");
             jugador.pasa = true;
             cartasEnJuego.manos.add(new Mano(new ArrayList<Carta>(), jugador));
             nJugadoresPasan++;
         }else{
-            System.out.println(jugador.getNombre() + " ha echado");
-            mano.verMano();
+            // mano.verMano();
             cartasEnJuego.manos.add(mano);
             jugador.mano.cartas.removeAll(mano.cartas);
         }

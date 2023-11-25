@@ -111,14 +111,7 @@ public class RedNeuronal implements Serializable{
     }
 
 
-    public void guardarEnDisco(String ficheroEnDisco){
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ficheroEnDisco))) {
-            oos.writeObject(this);
-            System.out.println("Objeto guardado correctamente.");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    
 
     public class CapaDeNeuronas implements Serializable{
         private int numeroConexiones;

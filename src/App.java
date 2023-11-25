@@ -5,6 +5,8 @@ import jugador.*;
 public class App {
     static Scanner scanner = new Scanner(System.in);
     static int RONDAS_TOTALES;
+    private static String carpetaGuardarRedesNeuronales = "redesNeuronales/";
+
     public static void main(String[] args) throws Exception {
         
         ArrayList<Jugador> jugadores = new ArrayList<Jugador>();
@@ -16,6 +18,8 @@ public class App {
             jugador.numero = k;
             jugadores.add(jugador);
         }
+
+        
         
         Baraja baraja = new Baraja();
 
@@ -176,9 +180,13 @@ public class App {
             while (!fin_partida) {
                 CartasEnJuego cartasEnJuego = new CartasEnJuego();
                 int nJugadoresPasan = 0;
-                
+                int numeroJugador = 0;
                 for (Jugador jugador: jugadores){
                     jugador.pasa = false;
+                    if (numeroJugador >= 1){
+                        IA ia = new IA(jugadores.get(numeroJugador), numeroJugador, jugadores, cartasEnJuego);
+                        ia.recuperarRedNeuronal(carpetaGuardarRedesNeuronales + "IA_" + numeroJugador + "_redNeuronal.dat");
+                    }
                 }
             
                 while (true) {
