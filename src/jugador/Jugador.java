@@ -1,5 +1,7 @@
 package jugador;
 import java.util.*;
+import inteligencia.*;
+
 public class Jugador{
     public  Mano mano = new Mano(new ArrayList<Carta>(),this);
     public boolean pasa = false;
@@ -7,11 +9,21 @@ public class Jugador{
     String nombre = "";
     private Role miRole;
     public int numero = 0;
+    private IA ia;
 
     public Jugador(Mano mano,Role role){
         this.mano = mano;
         mano.jugador = this;
         this.miRole = role;
+    }
+
+    public void setCartasEnJuego(CartasEnJuego cartasEnJuego){
+        this.ia.cartasEnJuego = cartasEnJuego;
+    }
+
+    public void setIA(IA ia){
+        this.ia = ia;
+        this.ia.jugador = this;
     }
 
     public void setRole(Role rol){
@@ -31,6 +43,7 @@ public class Jugador{
             default:
                 break;
         }
+        this.ia.setPuntos(puntos);
         this.miRole = rol;
     }
 
@@ -68,37 +81,9 @@ public class Jugador{
      * @return Un objeto Mano que contendrá las cartas que decidio echar.
      */
     public Mano echarCarta(int tamano, int valor){
-        mano.ordenarManoAscendente();
-        ArrayList<Carta> cartas_lanzar = new ArrayList<Carta>();
-        
-        
-        int valor_actual = 0;
-        for (Carta carta: mano.cartas) {
-            if (carta.getValor() > valor && (valor_actual == 0 || carta.getValor() == valor_actual)){
-                valor_actual = carta.getValor();
-                cartas_lanzar.add(carta);
-            }else if (carta.getValor() != valor_actual){
-                cartas_lanzar = new ArrayList<Carta>();
-            }
+        this.ia.jugador = this;
+        Mano nuevaMano = this.ia.echarCarta();
 
-            if (cartas_lanzar.size() == tamano || tamano == 0){
-                break;
-            }
-        }
-        if (cartas_lanzar.size() != tamano && tamano != 0){
-            cartas_lanzar = new ArrayList<Carta>();
-        }
-
-
-        //Eliminamos las cartas que vamos a lanzar de nuestra mano
-        this.mano.cartas.removeAll(cartas_lanzar);
-        
-        Mano nuevaMano = new Mano(cartas_lanzar,this);
-        this.mano.ordenarMano();
-
-        if (this.mano.cartas.size() == 0){
-            System.out.println(this.nombre + " ha terminado.");
-        }
         return nuevaMano;
     }
 
@@ -108,16 +93,20 @@ public class Jugador{
      * @param buenas si son cartas buenas a true y si son malas a false
      */
     public Mano getNCartas(int n, boolean buenas){
-        if (buenas){
-            this.mano.ordenarMano();
+        if (!buenas){
+            this.ia.jugador = this;
+            return this.ia.descartarNCartas(n);
         }else{
-            this.mano.ordenarManoAscendente();
+            this.mano.ordenarMano();
         }
 
         List<Carta> subLista = this.mano.cartas.subList(0, n);
         Mano cartasADar = new Mano(new ArrayList<Carta>(subLista), this);
         this.mano.cartas.removeAll(subLista);
         this.mano.ordenarMano();
+        if (this.mano.cartas.size() > 10){
+            int a;
+        }
         return cartasADar;
     }
 
@@ -140,5 +129,9 @@ public class Jugador{
         public String getStringValue() {
             return stringValue;
         }
+    }
+
+    public int getPuntos(){
+        return this.puntos;
     }
 }

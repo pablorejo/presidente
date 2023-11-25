@@ -32,4 +32,19 @@ public class  CartasEnJuego{
         }
     }
 
+    public int[] getCartasEchadas(){
+        int[] cartas = new int[38];
+        Arrays.fill(cartas, 0);
+        int k = 0;
+        for (Mano mano : manos) {
+            for (Carta carta: mano.cartas){
+                cartas[k] = carta.getValor();
+                k++;
+                if (k == 37){
+                    break;
+                }
+            }
+        }
+        return cartas;
+    }
 }

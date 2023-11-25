@@ -9,57 +9,55 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
+import jugador.Carta;
+
 public class RedNeuronal implements Serializable{
-    private static String ficheroEnDisco = "red_neuronal.dat";
     private FuncionDeActivacion singma = new FuncionDeActivacion(FuncionDeActivacion.TipoFuncion.Sigmoide);
-    private ArrayList<CapaDeNeuronas> rDeNeuronas = new ArrayList<CapaDeNeuronas>();
+    private FuncionDeActivacion relu = new FuncionDeActivacion(FuncionDeActivacion.TipoFuncion.ReLu);
 
-    /**
-     * Crea una red neuronal.
-     * @param arrayNNeuronas array list que contiene el numero de neuronas que tendrá cada capa
-     */
-    public RedNeuronal(ArrayList<Integer> arrayNNeuronas){
+    public ArrayList<CapaDeNeuronas> rDeNeuronas = new ArrayList<CapaDeNeuronas>();
+    private int ID;
+    
+    public RedNeuronal(int ID){
+        this.ID = ID;
 
-        for (int i = 0; i < arrayNNeuronas.size()-1 ; i++){
-            CapaDeNeuronas capa = new CapaDeNeuronas(arrayNNeuronas.get(i),arrayNNeuronas.get(i+1), singma);
-            rDeNeuronas.add(capa);
+        CapaDeNeuronas primeraCapa = new CapaDeNeuronas(56, 56, relu);
+        rDeNeuronas.add(primeraCapa);
+
+        for (int k = 1; k <= 4; k++){
+            CapaDeNeuronas capaIntermedia = new CapaDeNeuronas(56, 56, singma);
+            rDeNeuronas.add(capaIntermedia);
         }
 
+        /*  En la ultima capa se tendran que cartas hay que echar y se echaran esas mismas.
+        * La última neurona nos sacará el numero de cartas a echar. 
+        */
+        CapaDeNeuronas ultimaCapa = new CapaDeNeuronas(56, 11, relu);
+        rDeNeuronas.add(ultimaCapa);
     }
 
     /**
      * Esta funcion va a entrenar la red neuronal
-     * @param Yp parametros de entrada, tiene que ser una matiz de 1Xn 
-     * @param Yr parametros de salida
-     * @param learning_rate tasa de aprendizaje
+     * @param entrada : 
+     *  0-3 cartas en la mesa
+     *  4- 13 -> cartas del jugador 0 en caso de vacio 1-13 el valor de las mismas
+     *  10 - 51 -> cartas ya jugadas 
+     *  52 - 54 -> Nº cartas otros 3 jugadores.
+     *  55 -> Nº cartas en juego ejm: 2 doses, 3 cuatros, 1 rey. -> 2,3,1
+     * @return las cartas a la salida 0-9 las cartas que hay que echar, 10-> Nº de cartas a echar.
      */
-    public void train(Double[][] Yp, Double[][] Yr, Double learning_rate){
+    public Double[][] predict(Double[][] entrada){
 
         /***** Forward pass (paso hacia adelante)  */
-        Double[][] Yp_prima = new Double[Yp[0].length][Yp[1].length];
-        Yp_prima = Yp;
-        
-        for (CapaDeNeuronas capa: rDeNeuronas){
-            // Suma ponderada Z = (Yp*capa.w_matrix) + capa.w_matrix
-            Double[][] Z = sumarMatrices(multiplicarMatrices(Yp_prima, capa.w_matrix),capa.w_matrix);
-            Double[][] a = capa.resultadoFuncionDeActivacion(Z);
-            Yp_prima = new Double[a[0].length][a[1].length];
-            Yp_prima = a;
-        }
-    }  
-    
-    public Double[][] predict(Double[][] Yp, Double[][] Yr){
-
-        /***** Forward pass (paso hacia adelante)  */
-        Double[][] Yp_prima = new Double[Yp[0].length][Yp[1].length];
-        Yp_prima = Yp;
+        Double[][] Yp_prima = new Double[1][entrada[0].length];
+        Yp_prima = entrada;
 
         
         for (CapaDeNeuronas capa: rDeNeuronas){
             // Suma ponderada Z = (Yp*capa.w_matrix) + capa.w_matrix
-            Double[][] Z = sumarMatrices(multiplicarMatrices(Yp_prima, capa.w_matrix),capa.w_matrix);
+            Double[][] Z = sumarMatrices(multiplicarMatrices(Yp_prima, capa.w_matrix),capa.bias);
             Double[][] a = capa.resultadoFuncionDeActivacion(Z);
-            Yp_prima = new Double[a[0].length][a[1].length];
+            Yp_prima = new Double[a.length][a[0].length];
             Yp_prima = a;
         }
 
@@ -73,9 +71,12 @@ public class RedNeuronal implements Serializable{
         }
 
         Double[][] c = new Double[a.length][b[0].length];
+       
+
         // se comprueba si las matrices se pueden multiplicar
         for (int i = 0; i < a.length; i++) {
             for (int j = 0; j < b[0].length; j++) {
+                c[i][j] = 0.0;
                 for (int k = 0; k < a[0].length; k++) {
                     // aquí se multiplica la matriz
                     c[i][j] += a[i][k] * b[k][j];
@@ -109,31 +110,8 @@ public class RedNeuronal implements Serializable{
         return matrizSuma;
     }
 
-    public Double errorCuadraticoMedio(Double[] Yp, Double[] Yr){
-        Double sum = 0.0;
 
-        // Sumamos todos los errores cuadráticos
-        for (int i = 0; i < Yp.length; i++) {
-            sum += Math.pow(Yp[i] - Yr[i], 2);
-        }
-
-        // devolvemos la media dividiendo entre la longitud
-        return sum / Yp.length;
-    };
-
-    public Double errorCuadraticoMedioDerivada(Double[] Yp, Double[] Yr){
-        Double sum = 0.0;
-
-        // Sumamos todos los errores cuadráticos
-        for (int i = 0; i < Yp.length; i++) {
-            sum += Yp.length - Yr.length;
-        }
-
-        // devolvemos la media dividiendo entre la longitud
-        return sum ;
-    };
-
-    public void guardarEnDisco(){
+    public void guardarEnDisco(String ficheroEnDisco){
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ficheroEnDisco))) {
             oos.writeObject(this);
             System.out.println("Objeto guardado correctamente.");
@@ -142,28 +120,12 @@ public class RedNeuronal implements Serializable{
         }
     }
 
-    public static RedNeuronal recuperarObjetoDesdeDisco() {
-        RedNeuronal redNeuronalRecuperada = null;
-
-        // Recuperar el objeto desde el archivo
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ficheroEnDisco))) {
-            redNeuronalRecuperada = (RedNeuronal) ois.readObject();
-            System.out.println("Objeto recuperado correctamente.");
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        return redNeuronalRecuperada;
-    }
-
-
-
-    private class CapaDeNeuronas {
+    public class CapaDeNeuronas implements Serializable{
         private int numeroConexiones;
         private int numeroNeuronas;
         private FuncionDeActivacion funcionDeActivacion;
-        private Double[] bias; 
-        private Double[][] w_matrix; 
+        public Double[][] bias; 
+        public Double[][] w_matrix; 
         
         public CapaDeNeuronas(int numeroConexiones, int numeroNeuronas, FuncionDeActivacion funcionDeActivacion){
             this.numeroConexiones = numeroConexiones;
@@ -172,9 +134,9 @@ public class RedNeuronal implements Serializable{
             
             Random random = new Random();
             
-            bias = new Double[numeroNeuronas];
+            bias = new Double[1][numeroNeuronas];
             for (int j = 0; j < numeroNeuronas; j++) {
-                bias[j] = random.nextDouble()*2 - 1; //Multiplicamos por dos y restamos 1 para que estea entre -1, 1
+                bias[0][j] = random.nextDouble()*2 - 1; //Multiplicamos por dos y restamos 1 para que estea entre -1, 1
             }
             
             
@@ -184,20 +146,22 @@ public class RedNeuronal implements Serializable{
                     w_matrix[i][j] = random.nextDouble();
                 }
             }
+            int i = 0;
         }
 
         public Double[][] resultadoFuncionDeActivacion(Double[][] x){
-            Double[][] resultado = new Double[x[0].length][x[1].length];
-            for (int i = 0; i < x[0].length; i ++){
-                for (int k = 0; k < x[1].length; k ++){
-                    resultado[i][k] +=  this.funcionDeActivacion.resultado(x[i][k]);
+            Double[][] resultado = new Double[x.length][x[0].length];
+
+            for (int i = 0; i < x.length; i ++){
+                for (int k = 0; k < x[0].length; k ++){
+                    resultado[i][k] =  this.funcionDeActivacion.resultado(x[i][k]);
                 }
             }
             return resultado;
         }
     }
 
-    private class FuncionDeActivacion {
+    private class FuncionDeActivacion  implements Serializable{
         private TipoFuncion tipoFuncion;
         public FuncionDeActivacion(TipoFuncion tipoFuncion){
             this.tipoFuncion = tipoFuncion;

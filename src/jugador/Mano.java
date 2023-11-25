@@ -10,7 +10,13 @@ public class  Mano{
         this.jugador = jugador;
     }
 
-    
+    public Double getPonderacion(){
+        Double ponderacion = 0.0;
+        for (Carta carta : cartas) {
+            ponderacion += carta.getPonderacion();
+        }
+        return ponderacion;
+    }
     public void verMano(){
         int i = 0;
         if (this.cartas.size() ==  0){
@@ -24,6 +30,9 @@ public class  Mano{
         System.out.println("");
     }
 
+    /**
+     * Ordena la mano en orden descendente. primero la que tiene mas valor.
+     */
     public void ordenarMano(){
         Collections.sort(cartas, new Comparator<Carta>() {
             @Override

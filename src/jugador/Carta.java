@@ -4,12 +4,21 @@ public class  Carta {
     private int numero;
     private int valor;
     private String palo;
-   
+    private Double ponderacion;
+
     public Carta(int numero, String palo){
         this.numero = numero;
         this.palo = palo;
         this.setValor();
-    }   
+    } 
+    
+    public void setPonderacion(Double ponderacion){
+        this.ponderacion = ponderacion;
+    }
+
+    public Double getPonderacion(){
+        return this.ponderacion;
+    }
 
     private String getNumero(){
         String retorno = "";
