@@ -244,7 +244,6 @@ public class IA {
         // Recuperar el objeto desde el archivo
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ficheroEnDisco))) {
             redNeuronalRecuperada = (RedNeuronal) ois.readObject();
-            System.out.println("Objeto recuperado correctamente.");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -255,7 +254,6 @@ public class IA {
     public void guardarRedNeuronal(String ficheroEnDisco){
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ficheroEnDisco))) {
             oos.writeObject(this.miRed);
-            System.out.println("Objeto guardado correctamente.");
         } catch (IOException e) {
             e.printStackTrace();
         }

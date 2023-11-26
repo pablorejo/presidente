@@ -18,7 +18,9 @@ public class Jugador{
     }
 
     public void setCartasEnJuego(CartasEnJuego cartasEnJuego){
-        this.ia.cartasEnJuego = cartasEnJuego;
+        if (this.ia != null){
+            this.ia.cartasEnJuego = cartasEnJuego;
+        }
     }
 
     public void setIA(IA ia){
@@ -43,7 +45,9 @@ public class Jugador{
             default:
                 break;
         }
-        this.ia.setPuntos(puntos);
+        if (this.ia != null){
+            this.ia.setPuntos(puntos);
+        }
         this.miRole = rol;
     }
 

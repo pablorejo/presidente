@@ -16,14 +16,14 @@ public class Entrenamiento {
     ArrayList<IA> ias = new ArrayList<IA>();
     ArrayList<Jugador> jugadores;
     CartasEnJuego cartasEnJuego;
-    private static double probabilidadMutacion = 0.1;
+    private static double probabilidadMutacion = 0.13;
     private static int numeroTotalDeIAs = 100;
-    private static int numeroDeIasRecuperables = 20;
-    private static int numeroDeEntrenamientos = 100;
+    private static int numeroDeIasRecuperables = 12;
+    private static int numeroDeEntrenamientos = 1000;
     private static Double desgaste = 0.95;
     private static Double fusion = 0.999;
     private static String carpetaGuardarRedesNeuronales = "redesNeuronales/";
-    private static int cadaNguardamos = 4;
+    private static int cadaNguardamos = 3;
 
     public Entrenamiento(ArrayList<Jugador> jugadores,CartasEnJuego cartasEnJuego){
         this.jugadores = jugadores;
@@ -38,9 +38,11 @@ public class Entrenamiento {
     }
 
     public void cargarIas(){
+        System.out.println("Cargargando IAs");
         for(int k = 0; k < numeroTotalDeIAs; k++){
             IA ia = new IA(null, k, jugadores, cartasEnJuego);
             ia.recuperarRedNeuronal(carpetaGuardarRedesNeuronales + "IA_" + k + "_redNeuronal.dat");
+            actualizarBarraDeCarga(k,numeroTotalDeIAs-1);
             ias.add(ia);
         }
     }
@@ -50,16 +52,31 @@ public class Entrenamiento {
         while (n < numeroDeEntrenamientos) {
             System.out.println("Empezando ronda " + n);
             this.jugar();
-            System.out.println("Recombinando Ias\n");
+            System.out.println("Recombinando Ias");
 
             this.obtenerIAs();
             n++;
+            if (n%cadaNguardamos == 0 && n != numeroDeEntrenamientos){
+                int j = 0;
+                int numeroDeIAs = ias.size();
+                System.out.println("Guardando redes");
+                for (IA ia : ias) {
+                    ia.guardarRedNeuronal(carpetaGuardarRedesNeuronales +  "IA_" + j + "_redNeuronal.dat");
+                    j++;
+                    actualizarBarraDeCarga(j,numeroDeIAs);
+
+                }
+                System.out.println("");
+            }
 
         }
         int k = 0;
+        System.out.println("Guardando redes");
+        int numeroDeIAs = ias.size();
         for (IA ia : ias) {
             ia.guardarRedNeuronal(carpetaGuardarRedesNeuronales +  "IA_" + k + "_redNeuronal.dat");
             k++;
+            actualizarBarraDeCarga(k,numeroDeIAs);
         }
     }
 
@@ -83,7 +100,7 @@ public class Entrenamiento {
                     Jugador jugador2 = new Jugador(new Mano(new ArrayList<Carta>(), null), Jugador.Role.Nada);
                     jugador2.setIA(this.ias.get(siguiente));
                     this.ias.get(siguiente).jugador = jugador;
-                    jugadores.add(jugador2);
+                     jugadores.add(jugador2);
 
                 }
                 this.jugadores = jugadores;
@@ -91,13 +108,7 @@ public class Entrenamiento {
 
             }
             
-            if (k+1%cadaNguardamos == 0){
-                int j = 0;
-                for (IA ia : ias) {
-                    ia.guardarRedNeuronal(carpetaGuardarRedesNeuronales +  "IA_" + j + "_redNeuronal.dat");
-                    j++;
-                }
-            }
+            
             actualizarBarraDeCarga(k,numeroTotalDeIAs-4);
         }
     }

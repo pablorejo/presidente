@@ -19,6 +19,13 @@ public class App {
             jugadores.add(jugador);
         }
 
+        for(int k = 1; k < 4; k++){
+            IA ia = new IA(jugadores.get(k), k, jugadores, null);
+            ia.recuperarRedNeuronal(carpetaGuardarRedesNeuronales + "IA_" + (k-1) + "_redNeuronal.dat");
+            jugadores.get(k).setIA(ia);
+        }
+
+        
         
         
         Baraja baraja = new Baraja();
@@ -184,9 +191,9 @@ public class App {
                 for (Jugador jugador: jugadores){
                     jugador.pasa = false;
                     if (numeroJugador >= 1){
-                        IA ia = new IA(jugadores.get(numeroJugador), numeroJugador, jugadores, cartasEnJuego);
-                        ia.recuperarRedNeuronal(carpetaGuardarRedesNeuronales + "IA_" + numeroJugador + "_redNeuronal.dat");
+                        jugador.setCartasEnJuego(cartasEnJuego);
                     }
+                    numeroJugador++;
                 }
             
                 while (true) {
@@ -354,8 +361,8 @@ public class App {
         }
         Mano mano = jugador.echarCarta(tamano,valor);
         if (mano.cartas.size() == 0){
-            System.out.println(jugador.getNombre() + " Pasa");
             jugador.pasa = true;
+            cartasEnJuego.manos.add(new Mano(new ArrayList<Carta>(), jugador));
             nJugadoresPasan++;
         }else{
             System.out.println(jugador.getNombre() + " ha echado");
