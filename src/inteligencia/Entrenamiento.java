@@ -58,19 +58,24 @@ public class Entrenamiento {
             this.obtenerIAs();
             n++;
             if (n%cadaNguardamos == 0 && n != numeroDeEntrenamientos){
-                int j = 0;
-                int numeroDeIAs = ias.size();
-                System.out.println("Guardando redes");
-                for (IA ia : ias) {
-                    ia.guardarRedNeuronal(carpetaGuardarRedesNeuronales +  "IA_" + j + "_redNeuronal.dat");
-                    j++;
-                    actualizarBarraDeCarga(j,numeroDeIAs);
-
-                }
+                guardarRedesNeuronales();
                 System.out.println("");
             }
 
         }
+        guardarRedesNeuronales();
+    }
+
+    
+    private void guardarRedesNeuronales(){
+        Collections.sort(ias, new Comparator<IA>() {
+            @Override
+            public int compare(IA IA1, IA IA2) {
+                // Ordenar en orden descendente
+                return Integer.compare(IA2.getPuntacion(), IA1.getPuntacion());
+            }
+        });
+
         int k = 0;
         System.out.println("Guardando redes");
         int numeroDeIAs = ias.size();
@@ -80,9 +85,7 @@ public class Entrenamiento {
             actualizarBarraDeCarga(k,numeroDeIAs);
         }
     }
-
     
-
     private void jugar(){
         for(int k = 0; k < numeroTotalDeIAs-3; k++){
             

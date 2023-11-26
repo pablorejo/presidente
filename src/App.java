@@ -209,8 +209,15 @@ public class App {
                         switch (turno) {
                             case 0:
                                 Mano uMano = cartasEnJuego.ultiMano();
-                                
-                                if (uMano == null || uMano.cartas.get(0).getValor() != 13){
+                                int valor = 0;
+                                try {
+                                    if (uMano.cartas.size() > 0){
+                                        valor = uMano.cartas.get(0).getValor();
+                                    }
+                                } catch (Exception e) {
+                                }
+
+                                if (uMano == null || valor != 13){
                                     menuJugador(cartasEnJuego,nJugadoresPasan,jugadores.get(0));
                                 }else{
                                     System.out.println("Han echado el dos de oros no puedes seguir");

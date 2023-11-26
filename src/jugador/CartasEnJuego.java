@@ -40,10 +40,12 @@ public class  CartasEnJuego{
             for (Carta carta: mano.cartas){
                 cartas[k] = carta.getValor();
                 k++;
-                if (k == 37){
-                    System.out.println("Ya no quedan mas cartas echadas");
+                if (k == 38){
                     break;
                 }
+            }
+            if (k == 38){
+                break;
             }
         }
         return cartas;
