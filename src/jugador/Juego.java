@@ -104,7 +104,7 @@ public class Juego {
                 int nJugadoresPasan = 0;
                 
                 for (Jugador jugador: jugadores){
-                    jugador.pasa = false;
+                    jugador.noPasa();
                     jugador.setCartasEnJuego(cartasEnJuego);
                 }
             
@@ -174,13 +174,16 @@ public class Juego {
                     // Para saber si todos han pasado ya
                     nJugadoresPasan = 0;
                     for (Jugador jugador: jugadores){
-                        if (jugador.pasa || jugador.getFinalPartida()){
+                        if (jugador.getPasa() || jugador.getFinalPartida()){
                             nJugadoresPasan++;
                         }
                     }
                     if (nJugadoresPasan >= 3){
-                        turno = cartasEnJuego.ultiMano().jugador.numero;
-                        break;
+                        Mano uMano = cartasEnJuego.ultiMano();
+                        if (!uMano.jugador.getPasa()){
+                            turno = uMano.jugador.numero;
+                            break;
+                        }
                     }
                 }
             }
@@ -196,7 +199,7 @@ public class Juego {
         }
         Mano mano = jugador.echarCarta(tamano,valor);
         if (mano.cartas.size() == 0){
-            jugador.pasa = true;
+            jugador.siPasa();
             cartasEnJuego.manos.add(new Mano(new ArrayList<Carta>(), jugador));
             nJugadoresPasan++;
         }else{

@@ -21,18 +21,18 @@ public class RedNeuronal implements Serializable{
     public RedNeuronal(int ID){
         this.ID = ID;
 
-        CapaDeNeuronas primeraCapa = new CapaDeNeuronas(56, 56, relu);
+        CapaDeNeuronas primeraCapa = new CapaDeNeuronas(57, 57, relu);
         rDeNeuronas.add(primeraCapa);
 
         for (int k = 1; k <= 4; k++){
-            CapaDeNeuronas capaIntermedia = new CapaDeNeuronas(56, 56, singma);
+            CapaDeNeuronas capaIntermedia = new CapaDeNeuronas(57, 57, singma);
             rDeNeuronas.add(capaIntermedia);
         }
 
         /*  En la ultima capa se tendran que cartas hay que echar y se echaran esas mismas.
         * La última neurona nos sacará el numero de cartas a echar. 
         */
-        CapaDeNeuronas ultimaCapa = new CapaDeNeuronas(56, 11, relu);
+        CapaDeNeuronas ultimaCapa = new CapaDeNeuronas(57, 11, relu);
         rDeNeuronas.add(ultimaCapa);
     }
 
@@ -44,6 +44,7 @@ public class RedNeuronal implements Serializable{
      *  10 - 51 -> cartas ya jugadas 
      *  52 - 54 -> Nº cartas otros 3 jugadores.
      *  55 -> Nº cartas en juego ejm: 2 doses, 3 cuatros, 1 rey. -> 2,3,1
+     *  56 -> Nº de veces que pasan.
      * @return las cartas a la salida 0-9 las cartas que hay que echar, 10-> Nº de cartas a echar.
      */
     public Double[][] predict(Double[][] entrada){

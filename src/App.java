@@ -189,7 +189,7 @@ public class App {
                 int nJugadoresPasan = 0;
                 int numeroJugador = 0;
                 for (Jugador jugador: jugadores){
-                    jugador.pasa = false;
+                    jugador.noPasa();
                     if (numeroJugador >= 1){
                         jugador.setCartasEnJuego(cartasEnJuego);
                     }
@@ -214,7 +214,7 @@ public class App {
                                     menuJugador(cartasEnJuego,nJugadoresPasan,jugadores.get(0));
                                 }else{
                                     System.out.println("Han echado el dos de oros no puedes seguir");
-                                    jugadores.get(0).pasa = true;
+                                    jugadores.get(0).siPasa();
                                 }
                                 break;
                             
@@ -274,7 +274,7 @@ public class App {
                     // Para saber si todos han pasado ya
                     nJugadoresPasan = 0;
                     for (Jugador jugador: jugadores){
-                        if (jugador.pasa || jugador.getFinalPartida()){
+                        if (jugador.getPasa() || jugador.getFinalPartida()){
                             nJugadoresPasan++;
                         }
                     }
@@ -292,7 +292,7 @@ public class App {
 
     private static void menuJugador(CartasEnJuego cartasEnJuego,int nJugadoresPasan,Jugador jugador){
         boolean malLanzado = true;
-        while (malLanzado && !jugador.pasa) {
+        while (malLanzado && !jugador.getPasa()) {
             jugador.verMano();
             
             System.out.println("Que carta o cartas quiere lanzar? [ejem: 1,2]");
@@ -301,7 +301,7 @@ public class App {
             
             String cartas = scanner.nextLine();
             if (cartas.equalsIgnoreCase("pass")){
-                jugador.pasa = true;
+                jugador.siPasa();
                 nJugadoresPasan ++;
                 cartasEnJuego.manos.add(new Mano(new ArrayList<Carta>(), jugador));
                 break;
@@ -361,7 +361,7 @@ public class App {
         }
         Mano mano = jugador.echarCarta(tamano,valor);
         if (mano.cartas.size() == 0){
-            jugador.pasa = true;
+            jugador.siPasa();
             cartasEnJuego.manos.add(new Mano(new ArrayList<Carta>(), jugador));
             nJugadoresPasan++;
         }else{

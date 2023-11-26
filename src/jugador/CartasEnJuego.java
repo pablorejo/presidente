@@ -11,7 +11,7 @@ public class  CartasEnJuego{
 
         for (int k = manos.size() -1; k >= 0; k--){
             mano = manos.get(k);
-            if (mano.cartas.size() > 0 && !mano.jugador.pasa){
+            if (mano.cartas.size() > 0 && !mano.jugador.getPasa()){
                 return mano;
             }
         }

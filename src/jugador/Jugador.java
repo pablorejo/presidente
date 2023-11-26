@@ -4,17 +4,36 @@ import inteligencia.*;
 
 public class Jugador{
     public  Mano mano = new Mano(new ArrayList<Carta>(),this);
-    public boolean pasa = false;
+    private boolean pasa = false;
     private int puntos = 0;
     String nombre = "";
     private Role miRole;
     public int numero = 0;
     private IA ia;
+    private int vecesQuePasa;
 
     public Jugador(Mano mano,Role role){
         this.mano = mano;
         mano.jugador = this;
         this.miRole = role;
+    }
+
+    public void siPasa(){
+        this.pasa = true;
+        this.vecesQuePasa ++;
+    }
+
+    public void noPasa(){
+        this.pasa = false;
+        this.vecesQuePasa = 0;
+    }
+
+    public boolean getPasa(){
+        return this.pasa;
+    }
+
+    public int getVecesQuePasa(){
+        return this.vecesQuePasa;
     }
 
     public void setCartasEnJuego(CartasEnJuego cartasEnJuego){

@@ -50,6 +50,11 @@ public class IA {
     public void setPuntos(int puntos){
         this.puntos += puntos;
     }
+
+    public void restartPuntos(){
+        this.puntos = 0;
+    }
+
     private Double[][] predict(){
         int[] cartasEnLaMesa = getCartas(cartasEnJuego.ultiMano(),4);
 
@@ -65,16 +70,20 @@ public class IA {
         } catch (Exception e) {
             tamañoCartas[0] = 0;
         }
+
+        int[] vecesQuePasa = new int[1];
+        vecesQuePasa[0] = jugador.getVecesQuePasa();
         
 
         // Concatenar los arrays
-        int[] vector = new int[cartasEnLaMesa.length + cartasDelJugador.length + cartasEchadas.length + cartasOtrosJugadores.length + tamañoCartas.length];
+        int[] vector = new int[cartasEnLaMesa.length + cartasDelJugador.length + cartasEchadas.length + cartasOtrosJugadores.length + tamañoCartas.length + vecesQuePasa.length];
         //#region concatenar los vectores
         System.arraycopy(cartasEnLaMesa, 0, vector, 0, cartasEnLaMesa.length-1);
         System.arraycopy(cartasDelJugador, 0, vector, cartasEnLaMesa.length, cartasDelJugador.length-1);
         System.arraycopy(cartasEchadas, 0, vector, cartasEnLaMesa.length + cartasDelJugador.length, cartasEchadas.length-1);
         System.arraycopy(cartasOtrosJugadores, 0, vector, cartasEnLaMesa.length + cartasDelJugador.length + cartasEchadas.length, cartasOtrosJugadores.length-1);
         System.arraycopy(tamañoCartas, 0, vector, cartasEnLaMesa.length + cartasDelJugador.length + cartasEchadas.length + cartasOtrosJugadores.length, tamañoCartas.length-1);
+        System.arraycopy(vecesQuePasa, 0, vector, cartasEnLaMesa.length + cartasDelJugador.length + cartasEchadas.length + cartasOtrosJugadores.length + tamañoCartas.length, vecesQuePasa.length-1);
         //#endregion concatenar los vectores
 
         Double[][] vectorEntrada = new Double[1][vector.length];
@@ -137,7 +146,10 @@ public class IA {
             valor =  ultiMano.cartas.get(0).getValor();
             vacio = false;
         }else{
-            tamano = (int) Math.round(cartas[0][10]) % 3 + 1;
+            tamano = (int) Math.round(cartas[0][10]) % 5;
+            if (this.jugador.getVecesQuePasa() > 5) {
+                tamano = (int) Math.round(cartas[0][10]) + 1 % 4;
+            }
             valor = 0;
             vacio = true;
         }

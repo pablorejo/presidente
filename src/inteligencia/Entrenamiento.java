@@ -17,8 +17,9 @@ public class Entrenamiento {
     ArrayList<Jugador> jugadores;
     CartasEnJuego cartasEnJuego;
     private static double probabilidadMutacion = 0.13;
-    private static int numeroTotalDeIAs = 100;
-    private static int numeroDeIasRecuperables = 12;
+    private static int numeroTotalDeIAs = 10;
+    private static int numeroDeIasRecuperables = 4;
+    private static int conservacionDeNIAs = 2;
     private static int numeroDeEntrenamientos = 1000;
     private static Double desgaste = 0.95;
     private static Double fusion = 0.999;
@@ -127,9 +128,13 @@ public class Entrenamiento {
         
         Random random = new Random();
         
+        for(int i = 0; i < conservacionDeNIAs; i++){
+            ias.get(i).restartPuntos();
+            ias2.add(ias.get(i));
+        }
 
         int numeroDeIasCreadas = 0;
-        while (numeroDeIasCreadas < numeroTotalDeIAs) {
+        while (numeroDeIasCreadas < numeroTotalDeIAs-conservacionDeNIAs) {
             for (int k = 0; k < numeroDeIasRecuperables; k ++) {
                 Double probabilidadFusion = fusion * Math.pow(desgaste, k) ;
                 for (int i = k + 1; i < numeroDeIasRecuperables; i ++) {
@@ -141,11 +146,11 @@ public class Entrenamiento {
     
                     // Desgaste de la probabilidad
                     probabilidadFusion = probabilidadFusion * 0.9;
-                    if (numeroDeIasCreadas == numeroTotalDeIAs){
+                    if (numeroDeIasCreadas == numeroTotalDeIAs-conservacionDeNIAs){
                         break;
                     }
                 }
-                if (numeroDeIasCreadas == numeroTotalDeIAs){
+                if (numeroDeIasCreadas == numeroTotalDeIAs-conservacionDeNIAs){
                     break;
                 }
             }
