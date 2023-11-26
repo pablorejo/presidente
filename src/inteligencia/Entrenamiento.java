@@ -23,6 +23,7 @@ public class Entrenamiento {
     private static Double desgaste = 0.95;
     private static Double fusion = 0.999;
     private static String carpetaGuardarRedesNeuronales = "redesNeuronales/";
+    private static int cadaNguardamos = 4;
 
     public Entrenamiento(ArrayList<Jugador> jugadores,CartasEnJuego cartasEnJuego){
         this.jugadores = jugadores;
@@ -89,7 +90,14 @@ public class Entrenamiento {
                 new Juego(jugadores);
 
             }
-
+            
+            if (k+1%cadaNguardamos == 0){
+                int j = 0;
+                for (IA ia : ias) {
+                    ia.guardarRedNeuronal(carpetaGuardarRedesNeuronales +  "IA_" + j + "_redNeuronal.dat");
+                    j++;
+                }
+            }
             actualizarBarraDeCarga(k,numeroTotalDeIAs-4);
         }
     }
