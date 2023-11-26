@@ -41,6 +41,7 @@ public class  CartasEnJuego{
                 cartas[k] = carta.getValor();
                 k++;
                 if (k == 37){
+                    System.out.println("Ya no quedan mas cartas echadas");
                     break;
                 }
             }

@@ -16,15 +16,15 @@ public class Entrenamiento {
     ArrayList<IA> ias = new ArrayList<IA>();
     ArrayList<Jugador> jugadores;
     CartasEnJuego cartasEnJuego;
-    private static double probabilidadMutacion = 0.13;
-    private static int numeroTotalDeIAs = 10;
-    private static int numeroDeIasRecuperables = 4;
-    private static int conservacionDeNIAs = 2;
-    private static int numeroDeEntrenamientos = 1000;
-    private static Double desgaste = 0.95;
-    private static Double fusion = 0.999;
-    private static String carpetaGuardarRedesNeuronales = "redesNeuronales/";
-    private static int cadaNguardamos = 3;
+    private static double probabilidadMutacion = 0.13;// probabilidad de que una parte de la matriz mute de manera aleatoria.
+    private static int numeroTotalDeIAs = 100; // Numero total de ias en cada generación.
+    private static int numeroDeIasRecuperables = 12; //La siguiente generacion solo tendrá descendencia de las n mejores.
+    private static int conservacionDeNIAs = 5; //La siguiente generacion conservara intactas las n mejores.
+    private static int numeroDeEntrenamientos = 1000;// Numero de generaciones.
+    private static Double desgaste = 0.95; // Las peores ias tendran menos probabilidad de fusionarse con respecto a este desgaste.
+    private static Double fusion = 0.999; // Probabilidad de que una ia se fusione con otra.
+    private static String carpetaGuardarRedesNeuronales = "redesNeuronales/"; // Carpeta donde se guardaran las ias.
+    private static int cadaNguardamos = 3; // Cada n generaciones se guardaran las ias por seguridad.
 
     public Entrenamiento(ArrayList<Jugador> jugadores,CartasEnJuego cartasEnJuego){
         this.jugadores = jugadores;

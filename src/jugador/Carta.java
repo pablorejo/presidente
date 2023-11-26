@@ -1,8 +1,8 @@
 package jugador;
 
 public class  Carta {
-    private int numero;
-    private int valor;
+    private int numero = 0;
+    private int valor = 0;
     private String palo;
     private Double ponderacion;
 
@@ -54,6 +54,9 @@ public class  Carta {
     }
 
     public int getValor(){
+        if (this.valor == 0 && this.numero != 0){
+            this.setValor();
+        }
         return this.valor;
     }
 
