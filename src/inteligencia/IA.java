@@ -257,7 +257,6 @@ public class IA {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ficheroEnDisco))) {
             redNeuronalRecuperada = (RedNeuronal) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
         }
 
         this.miRed = redNeuronalRecuperada;

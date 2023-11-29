@@ -17,6 +17,7 @@ public class RedNeuronal implements Serializable{
 
     public ArrayList<CapaDeNeuronas> rDeNeuronas = new ArrayList<CapaDeNeuronas>();
     private int ID;
+    private int generacion = 0;
     
     public RedNeuronal(int ID){
         this.ID = ID;
@@ -41,7 +42,7 @@ public class RedNeuronal implements Serializable{
      * @param entrada : 
      *  0-3 cartas en la mesa
      *  4- 13 -> cartas del jugador 0 en caso de vacio 1-13 el valor de las mismas
-     *  10 - 51 -> cartas ya jugadas 
+     *  14 - 51 -> cartas ya jugadas 
      *  52 - 54 -> Nº cartas otros 3 jugadores.
      *  55 -> Nº cartas en juego ejm: 2 doses, 3 cuatros, 1 rey. -> 2,3,1
      *  56 -> Nº de veces que pasan.
@@ -111,7 +112,13 @@ public class RedNeuronal implements Serializable{
         return matrizSuma;
     }
 
+    public void setGeneracion(int generacion){
+        this.generacion = generacion;
+    }
 
+    public int getGeneracion(){
+        return this.generacion;
+    }
     
 
     public class CapaDeNeuronas implements Serializable{

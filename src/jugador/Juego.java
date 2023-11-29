@@ -15,6 +15,7 @@ public class Juego {
             jugadores.get(k).setNombre("Jugador " + k);
             jugadores.get(k).setRole(Jugador.Role.Nada);
             jugadores.get(k).numero = k;
+            jugadores.get(k).setVerboseFalse();
         }
 
         Baraja baraja = new Baraja();

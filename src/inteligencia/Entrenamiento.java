@@ -16,16 +16,15 @@ public class Entrenamiento {
     ArrayList<IA> ias = new ArrayList<IA>();
     ArrayList<Jugador> jugadores;
     CartasEnJuego cartasEnJuego;
-    private static double probabilidadMutacion = 0.13;// probabilidad de que una parte de la matriz mute de manera aleatoria.
-    private static int numeroTotalDeIAs = 100; // Numero total de ias en cada generación.
-    private static int numeroDeIasRecuperables = 12; //La siguiente generacion solo tendrá descendencia de las n mejores.
-    private static int conservacionDeNIAs = 5; //La siguiente generacion conservara intactas las n mejores.
+    private static double probabilidadMutacion = 0.03;// probabilidad de que una parte de la matriz mute de manera aleatoria.
+    private static int numeroTotalDeIAs = 40; // Numero total de ias en cada generación.
+    private static int numeroDeIasRecuperables = 8; //La siguiente generacion solo tendrá descendencia de las n mejores.
+    private static int conservacionDeNIAs = 3; //La siguiente generacion conservara intactas las n mejores.
     private static int numeroDeEntrenamientos = 1000;// Numero de generaciones.
     private static Double desgaste = 0.95; // Las peores ias tendran menos probabilidad de fusionarse con respecto a este desgaste.
     private static Double fusion = 0.999; // Probabilidad de que una ia se fusione con otra.
     private static String carpetaGuardarRedesNeuronales = "redesNeuronales/"; // Carpeta donde se guardaran las ias.
-    private static int cadaNguardamos = 3; // Cada n generaciones se guardaran las ias por seguridad.
-
+    private static int cadaNguardamos = 10; // Cada n generaciones se guardaran las ias por seguridad.
     public Entrenamiento(ArrayList<Jugador> jugadores,CartasEnJuego cartasEnJuego){
         this.jugadores = jugadores;
         this.cartasEnJuego = cartasEnJuego;
@@ -44,7 +43,24 @@ public class Entrenamiento {
             IA ia = new IA(null, k, jugadores, cartasEnJuego);
             ia.recuperarRedNeuronal(carpetaGuardarRedesNeuronales + "IA_" + k + "_redNeuronal.dat");
             actualizarBarraDeCarga(k,numeroTotalDeIAs-1);
+            if (ia.miRed != null){
+                ias.add(ia);
+            }
+        }
+        
+        int faltan = numeroTotalDeIAs - ias.size();
+
+        for(int k = 0; k < faltan; k ++){
+            IA ia = new IA(null, k, jugadores, cartasEnJuego);
             ias.add(ia);
+        }
+    }
+
+    public void verInformacionIAs(){
+        this.cargarIas();
+
+        for (IA ia : ias) {
+            System.out.println("Generacion: " + ia.miRed.getGeneracion());
         }
     }
 
@@ -61,11 +77,9 @@ public class Entrenamiento {
                 guardarRedesNeuronales();
                 System.out.println("");
             }
-
         }
         guardarRedesNeuronales();
     }
-
     
     private void guardarRedesNeuronales(){
         Collections.sort(ias, new Comparator<IA>() {
@@ -109,9 +123,7 @@ public class Entrenamiento {
                 }
                 this.jugadores = jugadores;
                 new Juego(jugadores);
-
             }
-            
             
             actualizarBarraDeCarga(k,numeroTotalDeIAs-4);
         }
@@ -178,6 +190,12 @@ public class Entrenamiento {
             nuevaIa.miRed.rDeNeuronas.get(k).w_matrix = crossover(ia1.miRed.rDeNeuronas.get(k).w_matrix, ia2.miRed.rDeNeuronas.get(k).w_matrix);
         }
 
+        if (ia1.miRed.getGeneracion() > ia2.miRed.getGeneracion()){
+            nuevaIa.miRed.setGeneracion(ia1.miRed.getGeneracion() + 1);
+        }else{
+            nuevaIa.miRed.setGeneracion(ia2.miRed.getGeneracion() + 1);
+        }
+
         return nuevaIa;
     }
 
@@ -198,12 +216,18 @@ public class Entrenamiento {
 
         // Combinar las partes de los padres antes y después del punto de cruce
         for (int i = 0; i < filas; i++) {
-            for (int j = 0; j < columnas; j++) {
-                if (random.nextDouble() < probabilidadMutacion){
-                    descendencia[i][j] = random.nextGaussian();
-                }else{
-                    if (random.nextDouble() > 0.5){
+            if (random.nextDouble() > 0.5){
+                for (int j = 0; j < columnas; j++) {
+                    if (random.nextDouble() < probabilidadMutacion){
+                        descendencia[i][j] = random.nextGaussian();
+                    }else{
                         descendencia[i][j] = padre1[i][j];
+                    }
+                }
+            }else{
+                for (int j = 0; j < columnas; j++) {
+                    if (random.nextDouble() < probabilidadMutacion){
+                        descendencia[i][j] = random.nextGaussian();
                     }else{
                         descendencia[i][j] = padre2[i][j];
                     }

@@ -11,11 +11,20 @@ public class Jugador{
     public int numero = 0;
     private IA ia;
     private int vecesQuePasa;
+    private boolean verbose = true;
 
     public Jugador(Mano mano,Role role){
         this.mano = mano;
         mano.jugador = this;
         this.miRole = role;
+    }
+
+    public void setVerboseFalse(){
+        this.verbose = false;
+    }
+
+    public void setVerboseTrue(){
+        this.verbose = true;
     }
 
     public void siPasa(){
@@ -105,8 +114,11 @@ public class Jugador{
      */
     public Mano echarCarta(int tamano, int valor){
         this.ia.jugador = this;
-        Mano nuevaMano = this.ia.echarCarta();
 
+        if (this.verbose){
+            this.mano.verMano();
+        }
+        Mano nuevaMano = this.ia.echarCarta();
         return nuevaMano;
     }
 
