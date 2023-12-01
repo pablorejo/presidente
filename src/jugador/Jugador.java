@@ -28,6 +28,9 @@ public class Jugador{
     }
 
     public void siPasa(){
+        if (verbose) {
+            System.out.println(this.nombre + " ha pasado.\n");
+        }
         this.pasa = true;
         this.vecesQuePasa ++;
     }

@@ -37,6 +37,10 @@ public class RedNeuronal implements Serializable{
         rDeNeuronas.add(ultimaCapa);
     }
 
+    public int getID(){
+        return this.ID;
+    }
+
     /**
      * Esta funcion va a entrenar la red neuronal
      * @param entrada : 

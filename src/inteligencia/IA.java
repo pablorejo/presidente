@@ -197,6 +197,7 @@ public class IA {
         int tamano_mano;
         if (mano != null){
             tamano_mano = mano.cartas.size();
+            mano.ordenarMano();
         }else{
             tamano_mano = 0;
         }
@@ -216,36 +217,45 @@ public class IA {
 
         int tamanoSetCartas = 0;
         int ultimoValor = 0;
-
+        Carta dosDeOros = null;
         if (tamano != 0){
             for (Carta carta: this.jugador.mano.cartas){
-                if (ultimoValor == 0){
-                    ultimoValor = carta.getValor();
-                }
-                if (carta.getValor() > valor && carta.getValor() == ultimoValor && tamanoSetCartas < tamano){
-                    tamanoSetCartas ++;
-                    ultimoValor = carta.getValor();
-                    setCartas.add(carta);
+
+                if(carta.getValor() == 13){
+                    dosDeOros = carta;
                 }else{
-                    if (carta.getValor() > valor && tamanoSetCartas < tamano){
-                        setCartas = new ArrayList<Carta>();
-                        tamanoSetCartas = 1;
+                    if (ultimoValor == 0){
+                        ultimoValor = carta.getValor();
+                    }
+                    if (carta.getValor() > valor && carta.getValor() == ultimoValor && tamanoSetCartas < tamano){
+                        
+                        tamanoSetCartas ++;
                         ultimoValor = carta.getValor();
                         setCartas.add(carta);
                     }else{
+                        if (carta.getValor() > valor && tamanoSetCartas < tamano){
+                            setCartas = new ArrayList<Carta>();
+                            tamanoSetCartas = 1;
+                            ultimoValor = carta.getValor();
+                            setCartas.add(carta);
+                        }else{
+                            tamanoSetCartas = 0;
+                            ultimoValor = 0;
+                            setCartas = new ArrayList<Carta>();
+                        }
+                    }
+                    
+                    if (tamanoSetCartas == tamano ){
                         tamanoSetCartas = 0;
-                        ultimoValor = 0;
+                        Mano mano = new Mano(setCartas, this.jugador);
+                        cartasPuedeEchar.add(mano);
                         setCartas = new ArrayList<Carta>();
                     }
                 }
-                
-                if (tamanoSetCartas == tamano ){
-                    tamanoSetCartas = 0;
-                    Mano mano = new Mano(setCartas, this.jugador);
-                    cartasPuedeEchar.add(mano);
-                    setCartas = new ArrayList<Carta>();
-                }
             }
+        }
+        if (dosDeOros != null) {
+            setCartas.add(dosDeOros);
         }
         return cartasPuedeEchar;
     }

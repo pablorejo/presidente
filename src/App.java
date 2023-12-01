@@ -24,12 +24,8 @@ public class App {
             ia.recuperarRedNeuronal(carpetaGuardarRedesNeuronales + "IA_" + (k-1) + "_redNeuronal.dat");
             jugadores.get(k).setIA(ia);
         }
-
-        
-        
         
         Baraja baraja = new Baraja();
-
 
         // Defenir rondas totales
         while (true) {
@@ -218,7 +214,7 @@ public class App {
                                 }
 
                                 if (uMano == null || valor != 13){
-                                    menuJugador(cartasEnJuego,nJugadoresPasan,jugadores.get(0));
+                                    menuJugador(cartasEnJuego,nJugadoresPasan,jugadores.get(0),jugadores);
                                 }else{
                                     System.out.println("Han echado el dos de oros no puedes seguir");
                                     jugadores.get(0).siPasa();
@@ -297,11 +293,17 @@ public class App {
         System.out.println("Fin partida :)");
     }
 
-    private static void menuJugador(CartasEnJuego cartasEnJuego,int nJugadoresPasan,Jugador jugador){
+    private static void menuJugador(CartasEnJuego cartasEnJuego,int nJugadoresPasan,Jugador jugador, ArrayList<Jugador> jugadores){
         boolean malLanzado = true;
         while (malLanzado && !jugador.getPasa()) {
             jugador.verMano();
             
+            for (Jugador jugador2 : jugadores) {
+                if (jugador2.getFinalPartida()){
+                    System.out.println(jugador2.getNombre() + " ha terminado.");
+                }
+            }
+
             System.out.println("Que carta o cartas quiere lanzar? [ejem: 1,2]");
             System.out.println("O pasar [ejem: pass]");
             cartasEnJuego.verUltimaMano();
@@ -368,6 +370,7 @@ public class App {
         }
         Mano mano = jugador.echarCarta(tamano,valor);
         if (mano.cartas.size() == 0){
+            
             jugador.siPasa();
             cartasEnJuego.manos.add(new Mano(new ArrayList<Carta>(), jugador));
             nJugadoresPasan++;

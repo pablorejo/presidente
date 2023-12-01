@@ -17,14 +17,18 @@ public class Entrenamiento {
     ArrayList<Jugador> jugadores;
     CartasEnJuego cartasEnJuego;
     private static double probabilidadMutacion = 0.03;// probabilidad de que una parte de la matriz mute de manera aleatoria.
-    private static int numeroTotalDeIAs = 40; // Numero total de ias en cada generación.
-    private static int numeroDeIasRecuperables = 8; //La siguiente generacion solo tendrá descendencia de las n mejores.
-    private static int conservacionDeNIAs = 3; //La siguiente generacion conservara intactas las n mejores.
-    private static int numeroDeEntrenamientos = 1000;// Numero de generaciones.
+    private static int numeroTotalDeIAs = 50; // Numero total de ias en cada generación.
+    private static int numeroDeIasRecuperables = 2; //La siguiente generacion solo tendrá descendencia de las n mejores.
+    private static int conservacionDeNIAs = 5; //La siguiente generacion conservara intactas las n mejores.
+    private static int numeroDeEntrenamientos = 10000;// Numero de generaciones.
     private static Double desgaste = 0.95; // Las peores ias tendran menos probabilidad de fusionarse con respecto a este desgaste.
     private static Double fusion = 0.999; // Probabilidad de que una ia se fusione con otra.
     private static String carpetaGuardarRedesNeuronales = "redesNeuronales/"; // Carpeta donde se guardaran las ias.
-    private static int cadaNguardamos = 10; // Cada n generaciones se guardaran las ias por seguridad.
+    private static String carpetaGuardarRedesNeuronalesRegistros = "redesNeuronales/registros/"; // Carpeta donde se guardaran las ias cada 10 generaciones
+    private static int cadaNguardamos = 4; // Cada n generaciones se guardaran las ias por seguridad.
+    private static int NUMERO_JUGADAS_POR_RONDA = 1;
+    private int UltimoID;
+    
     public Entrenamiento(ArrayList<Jugador> jugadores,CartasEnJuego cartasEnJuego){
         this.jugadores = jugadores;
         this.cartasEnJuego = cartasEnJuego;
@@ -38,29 +42,57 @@ public class Entrenamiento {
     }
 
     public void cargarIas(){
+        int ultimoID = 0;
         System.out.println("Cargargando IAs");
         for(int k = 0; k < numeroTotalDeIAs; k++){
+
             IA ia = new IA(null, k, jugadores, cartasEnJuego);
             ia.recuperarRedNeuronal(carpetaGuardarRedesNeuronales + "IA_" + k + "_redNeuronal.dat");
-            actualizarBarraDeCarga(k,numeroTotalDeIAs-1);
+            
             if (ia.miRed != null){
+                if (ia.miRed.getID() > ultimoID){
+                    ultimoID = ia.miRed.getID();
+                }
                 ias.add(ia);
             }
+
+            actualizarBarraDeCarga(k,numeroTotalDeIAs-1);
         }
         
         int faltan = numeroTotalDeIAs - ias.size();
 
         for(int k = 0; k < faltan; k ++){
-            IA ia = new IA(null, k, jugadores, cartasEnJuego);
+            ultimoID++;
+            IA ia = new IA(null, ultimoID, jugadores, cartasEnJuego);
             ias.add(ia);
+        }
+
+        this.UltimoID = ultimoID;
+
+        if (faltan == 0){
+            this.obtenerIAs();
+        }
+    }
+
+    public void cargarIasRegistro(){
+        
+        System.out.println("Cargargando IAs");
+        int empezando = 0;
+        int iterando = 200;
+        for(int k = empezando; k < iterando; k++){
+            IA ia = new IA(null, k, jugadores, cartasEnJuego);
+            ia.recuperarRedNeuronal(carpetaGuardarRedesNeuronalesRegistros + "IA_generacion_" + k + "_RedNeuronal.dat");
+            actualizarBarraDeCarga(k-empezando,iterando-1-empezando);
+            if (ia.miRed != null){
+                ias.add(ia);
+            }
         }
     }
 
     public void verInformacionIAs(){
-        this.cargarIas();
-
+        this.ordenarIasDescendente();
         for (IA ia : ias) {
-            System.out.println("Generacion: " + ia.miRed.getGeneracion());
+            System.out.println("La red neuronal con ID: " + ia.miRed.getID() + " de la generacion: " + ia.miRed.getGeneracion() + " ha obtenido una puntuacion de " + ia.getPuntacion());
         }
     }
 
@@ -68,20 +100,23 @@ public class Entrenamiento {
         int n = 0;
         while (n < numeroDeEntrenamientos) {
             System.out.println("Empezando ronda " + n);
-            this.jugar();
+            for(int k = this.NUMERO_JUGADAS_POR_RONDA; k > 0; k--){
+                this.jugar();
+            }
             System.out.println("Recombinando Ias");
 
-            this.obtenerIAs();
             n++;
             if (n%cadaNguardamos == 0 && n != numeroDeEntrenamientos){
                 guardarRedesNeuronales();
                 System.out.println("");
             }
+            this.obtenerIAs();
         }
         guardarRedesNeuronales();
     }
-    
-    private void guardarRedesNeuronales(){
+
+
+    private void ordenarIasDescendente(){
         Collections.sort(ias, new Comparator<IA>() {
             @Override
             public int compare(IA IA1, IA IA2) {
@@ -89,21 +124,29 @@ public class Entrenamiento {
                 return Integer.compare(IA2.getPuntacion(), IA1.getPuntacion());
             }
         });
+    }
+    
+    private void guardarRedesNeuronales(){
+        this.ordenarIasDescendente();
 
         int k = 0;
         System.out.println("Guardando redes");
+
+        ias.get(0).guardarRedNeuronal(carpetaGuardarRedesNeuronalesRegistros + "IA_generacion_" + ias.get(0).miRed.getGeneracion() + "_RedNeuronal.dat");
+
         int numeroDeIAs = ias.size();
         for (IA ia : ias) {
+                
             ia.guardarRedNeuronal(carpetaGuardarRedesNeuronales +  "IA_" + k + "_redNeuronal.dat");
             k++;
             actualizarBarraDeCarga(k,numeroDeIAs);
         }
     }
     
-    private void jugar(){
-        for(int k = 0; k < numeroTotalDeIAs-3; k++){
+    public void jugar(){
+        for(int k = 0; k < ias.size()-3; k++){
             
-            for (int i = k + 1 ;i < numeroTotalDeIAs-3; i ++){
+            for (int i = k + 1 ;i < ias.size()-3; i ++){
 
                 ArrayList<Jugador> jugadores = new ArrayList<Jugador>();
                 Jugador jugador = new Jugador(new Mano(new ArrayList<Carta>(), null), Jugador.Role.Nada);
@@ -125,20 +168,14 @@ public class Entrenamiento {
                 new Juego(jugadores);
             }
             
-            actualizarBarraDeCarga(k,numeroTotalDeIAs-4);
+            actualizarBarraDeCarga(k,ias.size()-4);
         }
     }
     /**
      * Esta función crea la recombinacion de las ias a partir de las que mejor han quedado.
      */
     public void obtenerIAs(){
-        Collections.sort(ias, new Comparator<IA>() {
-            @Override
-            public int compare(IA IA1, IA IA2) {
-                // Ordenar en orden descendente
-                return Integer.compare(IA2.getPuntacion(), IA1.getPuntacion());
-            }
-        });
+        this.ordenarIasDescendente();
         ArrayList<IA> ias2 = new ArrayList<IA>();
         
         Random random = new Random();
@@ -183,7 +220,8 @@ public class Entrenamiento {
      * @return Objeto IA hijo
      */
     public IA combinarIas(IA ia1, IA ia2){
-        IA nuevaIa = new IA(null, 0, jugadores, cartasEnJuego);
+        this.UltimoID++;
+        IA nuevaIa = new IA(null,this.UltimoID , jugadores, cartasEnJuego);
 
         for (int k = 0; k < ia1.miRed.rDeNeuronas.size(); k++) {
             nuevaIa.miRed.rDeNeuronas.get(k).bias = crossover(ia1.miRed.rDeNeuronas.get(k).bias, ia2.miRed.rDeNeuronas.get(k).bias);
@@ -215,9 +253,9 @@ public class Entrenamiento {
         Double[][] descendencia = new Double[filas][columnas];
 
         // Combinar las partes de los padres antes y después del punto de cruce
-        for (int i = 0; i < filas; i++) {
+        for (int j = 0; j < columnas; j++) {
             if (random.nextDouble() > 0.5){
-                for (int j = 0; j < columnas; j++) {
+                for (int i = 0; i < filas; i++) {
                     if (random.nextDouble() < probabilidadMutacion){
                         descendencia[i][j] = random.nextGaussian();
                     }else{
@@ -225,7 +263,7 @@ public class Entrenamiento {
                     }
                 }
             }else{
-                for (int j = 0; j < columnas; j++) {
+                for (int i = 0; i < filas; i++) {
                     if (random.nextDouble() < probabilidadMutacion){
                         descendencia[i][j] = random.nextGaussian();
                     }else{
