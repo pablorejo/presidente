@@ -12,7 +12,9 @@ public class Jugador{
     private IA ia;
     private int vecesQuePasa;
     private boolean verbose = true;
-
+    public IA getIa(){
+        return this.ia;
+    }
     public Jugador(Mano mano,Role role){
         this.mano = mano;
         mano.jugador = this;
@@ -60,25 +62,30 @@ public class Jugador{
     }
 
     public void setRole(Role rol){
+        int puntosAñadir = 0;
         switch (rol) {
             case Presidente:
-                this.puntos += 3;
+                puntosAñadir = 3;
                 break;
             case VicePresidente:
-                this.puntos += 1;
+                puntosAñadir = 1;
                 break;
             case ViceComemierda:
-                this.puntos -= 1;
+                puntosAñadir = 1;
                 break;
             case Comemierda:
-                this.puntos -= 3;
+                puntosAñadir = 3;
+                break;
+            case Nada:
+                puntosAñadir = 0;
                 break;
             default:
                 break;
         }
         if (this.ia != null){
-            this.ia.setPuntos(puntos);
+            this.ia.setPuntos(puntosAñadir);
         }
+        this.puntos += puntosAñadir;
         this.miRole = rol;
     }
 

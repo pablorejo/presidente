@@ -16,18 +16,22 @@ public class Entrenamiento {
     ArrayList<IA> ias = new ArrayList<IA>();
     ArrayList<Jugador> jugadores;
     CartasEnJuego cartasEnJuego;
-    private static double probabilidadMutacion = 0.1;// probabilidad de que una parte de la matriz mute de manera aleatoria.
+    private static double probabilidadMutacion = 0.05;// probabilidad de que una parte de la matriz mute de manera aleatoria.
     private static int numeroTotalDeIAs = 150; // Numero total de ias en cada generación.
-    private static int numeroDeIasRecuperables = 3; //La siguiente generacion solo tendrá descendencia de las n mejores.
-    private static int conservacionDeNIAs = 2; //La siguiente generacion conservara intactas las n mejores.
+
     private static int numeroDeEntrenamientos = 10000;// Numero de generaciones.
     private static Double desgaste = 0.95; // Las peores ias tendran menos probabilidad de fusionarse con respecto a este desgaste.
     private static Double fusion = 0.999; // Probabilidad de que una ia se fusione con otra.
     private static String carpetaGuardarRedesNeuronales = "redesNeuronales/"; // Carpeta donde se guardaran las ias.
     private static String carpetaGuardarRedesNeuronalesRegistros = "redesNeuronales/registros/"; // Carpeta donde se guardaran las ias cada 10 generaciones
     private static int cadaNguardamos = 4; // Cada n generaciones se guardaran las ias por seguridad.
-    private static int NUMERO_JUGADAS_POR_RONDA = 3;
+    private int NUMERO_JUGADAS_POR_RONDA = 20;
     private int UltimoID;
+
+    // Esta variable está para guardar las mejores ias de cada jugada
+    private IA _primeraMejorIA;
+    private IA _segundaMejorIA;
+    private IA _terceraMejorIA;
     
     public Entrenamiento(ArrayList<Jugador> jugadores,CartasEnJuego cartasEnJuego){
         this.jugadores = jugadores;
@@ -68,10 +72,6 @@ public class Entrenamiento {
         }
 
         this.UltimoID = ultimoID;
-
-        if (faltan == 0){
-            this.obtenerIAs();
-        }
     }
 
     public void cargarIasRegistro(){
@@ -100,11 +100,8 @@ public class Entrenamiento {
         int n = 0;
         while (n < numeroDeEntrenamientos) {
             System.out.println("Empezando ronda " + n);
-            for(int k = this.NUMERO_JUGADAS_POR_RONDA; k > 0; k--){
-                this.jugar();
-            }
+            this.jugar();
             System.out.println("Recombinando Ias");
-
             n++;
             if (n%cadaNguardamos == 0 && n != numeroDeEntrenamientos){
                 guardarRedesNeuronales();
@@ -144,32 +141,61 @@ public class Entrenamiento {
     }
     
     public void jugar(){
-        for(int k = 0; k < ias.size()-3; k++){
+        IA primeraMejorIA = this.ias.get(0);
+        IA segundaMejorIA = this.ias.get(1);
+        IA terceraMejorIA = this.ias.get(2);
+
+        for(int k = 3; k < ias.size(); k++){
+
+            ArrayList<Jugador> jugadores2 = new ArrayList<Jugador>();
+
+            Jugador mejorJugador = new Jugador(new Mano(new ArrayList<Carta>(), null), Jugador.Role.Nada);
+            mejorJugador.setIA(primeraMejorIA);
+            primeraMejorIA.jugador = mejorJugador;
+            jugadores2.add(mejorJugador);
+
+            Jugador segundoJugador = new Jugador(new Mano(new ArrayList<Carta>(), null), Jugador.Role.Nada);
+            segundoJugador.setIA(segundaMejorIA);
+            segundaMejorIA.jugador = segundoJugador;
+            jugadores2.add(segundoJugador);
+
+            Jugador tercerJugador = new Jugador(new Mano(new ArrayList<Carta>(), null), Jugador.Role.Nada);
+            tercerJugador.setIA(terceraMejorIA);
+            terceraMejorIA.jugador = tercerJugador;
+            jugadores2.add(tercerJugador);
+
+
+            Jugador siguienteJugador = new Jugador(new Mano(new ArrayList<Carta>(), null), Jugador.Role.Nada);
+            siguienteJugador.setIA(this.ias.get(k));
+            this.ias.get(k).jugador = siguienteJugador;
+            jugadores2.add(siguienteJugador);
+
             
-            for (int i = k + 1 ;i < ias.size()-3; i ++){
 
-                ArrayList<Jugador> jugadores = new ArrayList<Jugador>();
-                Jugador jugador = new Jugador(new Mano(new ArrayList<Carta>(), null), Jugador.Role.Nada);
-                jugador.setIA(this.ias.get(k));
-                this.ias.get(k).jugador = jugador;
-                jugadores.add(jugador);
 
-                int siguiente = i;
-                for (int j = 1; j <= 3; j++){
-                    siguiente += 1;
-
-                    Jugador jugador2 = new Jugador(new Mano(new ArrayList<Carta>(), null), Jugador.Role.Nada);
-                    jugador2.setIA(this.ias.get(siguiente));
-                    this.ias.get(siguiente).jugador = jugador;
-                     jugadores.add(jugador2);
-
-                }
-                this.jugadores = jugadores;
-                new Juego(jugadores);
+            for (int j = 0; j < this.NUMERO_JUGADAS_POR_RONDA; j++){
+                new Juego(jugadores2);
             }
+
+            Collections.sort(jugadores2, new Comparator<Jugador>() {
+                @Override
+                public int compare(Jugador jugador1, Jugador jugador2) {
+                    // Ordenar en orden descendente
+                    return Integer.compare(jugador2.getPuntos(), jugador1.getPuntos());
+                }
+            });
+
+            primeraMejorIA = jugadores2.get(0).getIa();
+            segundaMejorIA = jugadores2.get(1).getIa();
+            terceraMejorIA = jugadores2.get(2).getIa();
             
-            actualizarBarraDeCarga(k,ias.size()-4);
+            actualizarBarraDeCarga(k,ias.size()-1);
         }
+
+        this._primeraMejorIA = primeraMejorIA;
+        System.out.println("La mejor red neuronal ha sido "+ primeraMejorIA.miRed.getID());
+        this._segundaMejorIA = segundaMejorIA;
+        this._terceraMejorIA = terceraMejorIA;
     }
     /**
      * Esta función crea la recombinacion de las ias a partir de las que mejor han quedado.
@@ -180,29 +206,33 @@ public class Entrenamiento {
         
         Random random = new Random();
         
-        for(int i = 0; i < conservacionDeNIAs; i++){
-            ias.get(i).restartPuntos();
-            ias2.add(ias.get(i));
-        }
+        _primeraMejorIA.restartPuntos();
+        ias2.add(_primeraMejorIA);
+
+        _segundaMejorIA.restartPuntos();
+        ias2.add(_segundaMejorIA);
+
+        _terceraMejorIA.restartPuntos();
+        ias2.add(_terceraMejorIA);
 
         int numeroDeIasCreadas = 0;
-        while (numeroDeIasCreadas < numeroTotalDeIAs-conservacionDeNIAs) {
-            for (int k = 0; k < numeroDeIasRecuperables; k ++) {
+        while (numeroDeIasCreadas < numeroTotalDeIAs-3) {
+            for (int k = 0; k < 3; k ++) {
                 Double probabilidadFusion = fusion * Math.pow(desgaste, k) ;
-                for (int i = k + 1; i < numeroDeIasRecuperables; i ++) {
+                for (int i = k + 1; i < 3; i ++) {
                     if (probabilidadFusion > random.nextDouble()){
-                        IA ia = combinarIas(ias.get(k), ias.get(i));
+                        IA ia = combinarIas(ias2.get(k), ias2.get(i));
                         ias2.add(ia);
                         numeroDeIasCreadas ++;
                     }
     
                     // Desgaste de la probabilidad
                     probabilidadFusion = probabilidadFusion * 0.9;
-                    if (numeroDeIasCreadas == numeroTotalDeIAs-conservacionDeNIAs){
+                    if (numeroDeIasCreadas == numeroTotalDeIAs-3){
                         break;
                     }
                 }
-                if (numeroDeIasCreadas == numeroTotalDeIAs-conservacionDeNIAs){
+                if (numeroDeIasCreadas == numeroTotalDeIAs-3){
                     break;
                 }
             }
