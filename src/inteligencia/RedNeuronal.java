@@ -1,15 +1,16 @@
 package inteligencia;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Random;
-
-import jugador.Carta;
 
 public class RedNeuronal implements Serializable{
     private FuncionDeActivacion singma = new FuncionDeActivacion(FuncionDeActivacion.TipoFuncion.Sigmoide);
@@ -126,15 +127,11 @@ public class RedNeuronal implements Serializable{
     
 
     public class CapaDeNeuronas implements Serializable{
-        private int numeroConexiones;
-        private int numeroNeuronas;
         private FuncionDeActivacion funcionDeActivacion;
         public Double[][] bias; 
         public Double[][] w_matrix; 
         
         public CapaDeNeuronas(int numeroConexiones, int numeroNeuronas, FuncionDeActivacion funcionDeActivacion){
-            this.numeroConexiones = numeroConexiones;
-            this.numeroNeuronas = numeroNeuronas;
             this.funcionDeActivacion = funcionDeActivacion;
             
             Random random = new Random();
@@ -151,7 +148,6 @@ public class RedNeuronal implements Serializable{
                     w_matrix[i][j] = random.nextDouble();
                 }
             }
-            int i = 0;
         }
 
         public Double[][] resultadoFuncionDeActivacion(Double[][] x){
@@ -164,6 +160,7 @@ public class RedNeuronal implements Serializable{
             }
             return resultado;
         }
+
     }
 
     private class FuncionDeActivacion  implements Serializable{
@@ -194,27 +191,6 @@ public class RedNeuronal implements Serializable{
             return resultado;
         }
 
-        public Double derivada(Double x){
-            Double resultado = 0.0;
-            switch (tipoFuncion) {
-                case Sigmoide:
-                    resultado = x * (1-x);
-                    break;
-                case ReLu:
-                    if (x > 0){
-                        resultado = 1.0;
-                    }else{
-                        resultado = 0.0;
-                    }
-                    break;
-            
-                default:
-                    break;
-            }
-
-            return resultado;
-
-        }
         public enum  TipoFuncion {
             Sigmoide("Sigmoide"),
             ReLu("ReLu");
@@ -228,8 +204,100 @@ public class RedNeuronal implements Serializable{
                 return stringValue;
             }
         }
+    }
 
+    public void guardarRedString(String nombreArchivo){
+        try {
+            // Crea un objeto FileWriter con el nombre del archivo
+            FileWriter fileWriter = new FileWriter(nombreArchivo);
+
+            // Crea un objeto BufferedWriter que envuelve el FileWriter
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
+            // Escribe la información en el archivo
+            escribir(bufferedWriter);
+
+            // Cierra el BufferedWriter para liberar recursos
+            bufferedWriter.close();
+
+            System.out.println("Información guardada en " + nombreArchivo);
+        } catch (IOException e) {
+            // Manejo de excepciones en caso de error de escritura
+            e.printStackTrace();
+        }
+    }
+
+    private void escribir(BufferedWriter bufferedWriter) throws IOException{
         
+
+        for (CapaDeNeuronas capaDeNeuronas : rDeNeuronas) {
+            bufferedWriter.write("Capa\n");
+            for (Double[] doubles : capaDeNeuronas.bias) {
+                for (Double double1 : doubles) {
+                    bufferedWriter.write(double1 + ",");
+                }
+            }
+            bufferedWriter.write("\nw_matrix\n");
+
+            Double w_matrix[][] = capaDeNeuronas.w_matrix;
+            for (int i = 0; i < w_matrix.length; i++) {
+                for (int j = 0; j < w_matrix[0].length; j++) {
+                    bufferedWriter.write(w_matrix[i][j] + ",");
+                }
+                bufferedWriter.write("\n");
+            }
+        }
+    }
+
+    public void recuperarRedString(String nombreArchivo){
+        try {
+            // Crea un objeto FileWriter con el nombre del archivo
+            // Escribe la información en el archivo
+            // Crea un objeto FileWriter con el nombre del archivo
+            FileReader fileReader = new FileReader(nombreArchivo);
+
+            // Crea un objeto BufferedWriter que envuelve el FileWriter
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            leer(bufferedReader);
+
+            // Cierra el BufferedWriter para liberar recursos
+            System.out.println("Información guardada en " + nombreArchivo);
+        } catch (IOException e) {
+            // Manejo de excepciones en caso de error de escritura
+            e.printStackTrace();
+        }
+    }
+
+    private void leer(BufferedReader bufferedReader) throws IOException{
+        String stringLeido = bufferedReader.lines().reduce("", (line1, line2) -> line1 + line2 + "\n");
+        stringLeido = stringLeido.replaceFirst("Capa","");
+        String capas[] = stringLeido.split("Capa");
+        int k = 0;
+        for (String capa : capas) {
+
+            String matrices[] = capa.split("w_matrix");
+
+            String biaString[] = matrices[0].split(",");
+
+            Double[][] bias = this.rDeNeuronas.get(k).bias;
+            for (int j = 0; j < biaString.length-1; j++) {
+                bias[0][j] = Double.parseDouble(biaString[j].replace("0\n" ,""));
+            }
+
+            String w_matrixString[] = matrices[1].replaceFirst("\n", "").split("\n");
+            Double[][] w_matrix = this.rDeNeuronas.get(k).w_matrix;
+            // w_matrix = new Double[w_matrixString.length][w_matrixString[0].split(",").length];
+
+            for (int i = 0; i < w_matrixString.length; i++) {
+
+                String w_matrixDoubles[] = w_matrixString[i].split(",");
+
+                for (int j = 0; j < w_matrixDoubles.length; j++) {
+                    w_matrix[i][j] = Double.parseDouble(w_matrixDoubles[j].replace("0\n" ,""));
+                }
+            }
+            k++;
+        }
     }
 }
 

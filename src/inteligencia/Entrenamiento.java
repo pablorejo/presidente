@@ -19,11 +19,12 @@ public class Entrenamiento {
     private static double probabilidadMutacion = 0.05;// probabilidad de que una parte de la matriz mute de manera aleatoria.
     private static int numeroTotalDeIAs = 150; // Numero total de ias en cada generación.
 
-    private static int numeroDeEntrenamientos = 10000;// Numero de generaciones.
+    private static int numeroDeEntrenamientos = 100000;// Numero de generaciones.
     private static Double desgaste = 0.95; // Las peores ias tendran menos probabilidad de fusionarse con respecto a este desgaste.
     private static Double fusion = 0.999; // Probabilidad de que una ia se fusione con otra.
     private static String carpetaGuardarRedesNeuronales = "redesNeuronales/"; // Carpeta donde se guardaran las ias.
     private static String carpetaGuardarRedesNeuronalesRegistros = "redesNeuronales/registros/"; // Carpeta donde se guardaran las ias cada 10 generaciones
+    private static String carpetaGuardarRedesNeuronalesMejores = "redesNeuronales/mejores/"; // Carpeta donde se guardan las 3 mejores redes
     private static int cadaNguardamos = 4; // Cada n generaciones se guardaran las ias por seguridad.
     private int NUMERO_JUGADAS_POR_RONDA = 20;
     private int UltimoID;
@@ -43,6 +44,18 @@ public class Entrenamiento {
             IA ia = new IA(null, k, jugadores, cartasEnJuego);
             ias.add(ia);
         }
+    }
+
+    public void parsearAFichero(){
+        this._primeraMejorIA.miRed.guardarRedString(carpetaGuardarRedesNeuronalesMejores + "red1.txt");
+        this._segundaMejorIA.miRed.guardarRedString(carpetaGuardarRedesNeuronalesMejores + "red2.txt");
+        this._terceraMejorIA.miRed.guardarRedString(carpetaGuardarRedesNeuronalesMejores + "red3.txt");
+    }
+
+    public void recuperarDesdeFichero(){
+        this._primeraMejorIA.miRed.recuperarRedString(carpetaGuardarRedesNeuronalesMejores + "red1.txt");
+        this._segundaMejorIA.miRed.recuperarRedString(carpetaGuardarRedesNeuronalesMejores + "red2.txt");
+        this._terceraMejorIA.miRed.recuperarRedString(carpetaGuardarRedesNeuronalesMejores + "red3.txt");
     }
 
     public void cargarIas(){
@@ -105,6 +118,7 @@ public class Entrenamiento {
             n++;
             if (n%cadaNguardamos == 0 && n != numeroDeEntrenamientos){
                 guardarRedesNeuronales();
+                
                 System.out.println("");
             }
             this.obtenerIAs();
@@ -124,8 +138,9 @@ public class Entrenamiento {
     }
     
     private void guardarRedesNeuronales(){
+        this.parsearAFichero();
         this.ordenarIasDescendente();
-
+        
         int k = 0;
         System.out.println("Guardando redes");
 
@@ -148,7 +163,6 @@ public class Entrenamiento {
         for(int k = 3; k < ias.size(); k++){
 
             ArrayList<Jugador> jugadores2 = new ArrayList<Jugador>();
-
             Jugador mejorJugador = new Jugador(new Mano(new ArrayList<Carta>(), null), Jugador.Role.Nada);
             mejorJugador.setIA(primeraMejorIA);
             primeraMejorIA.jugador = mejorJugador;

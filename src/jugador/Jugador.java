@@ -71,10 +71,10 @@ public class Jugador{
                 puntosAñadir = 1;
                 break;
             case ViceComemierda:
-                puntosAñadir = 1;
+                puntosAñadir = -1;
                 break;
             case Comemierda:
-                puntosAñadir = 3;
+                puntosAñadir = -3;
                 break;
             case Nada:
                 puntosAñadir = 0;
