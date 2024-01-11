@@ -26,15 +26,21 @@ public class RedNeuronal implements Serializable{
         CapaDeNeuronas primeraCapa = new CapaDeNeuronas(57, 57, relu);
         rDeNeuronas.add(primeraCapa);
 
-        for (int k = 1; k <= 4; k++){
+        for (int k = 1; k <= 2; k++){
             CapaDeNeuronas capaIntermedia = new CapaDeNeuronas(57, 57, singma);
             rDeNeuronas.add(capaIntermedia);
         }
 
+
+        for (int k = 1; k <= 2; k++){
+            CapaDeNeuronas capaIntermedia = new CapaDeNeuronas(57, 57, relu);
+            rDeNeuronas.add(capaIntermedia);
+        }
+
         /*  En la ultima capa se tendran que cartas hay que echar y se echaran esas mismas.
-        * La última neurona nos sacará el numero de cartas a echar. 
-        */
-        CapaDeNeuronas ultimaCapa = new CapaDeNeuronas(57, 11, relu);
+         * La última neurona nos sacará el numero de cartas a echar.
+         */
+        CapaDeNeuronas ultimaCapa = new CapaDeNeuronas(57, 12, singma);
         rDeNeuronas.add(ultimaCapa);
     }
 
@@ -261,7 +267,7 @@ public class RedNeuronal implements Serializable{
             leer(bufferedReader);
 
             // Cierra el BufferedWriter para liberar recursos
-            System.out.println("Información guardada en " + nombreArchivo);
+            System.out.println("Información recuperada de " + nombreArchivo);
         } catch (IOException e) {
             // Manejo de excepciones en caso de error de escritura
             e.printStackTrace();

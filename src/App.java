@@ -5,7 +5,7 @@ import jugador.*;
 public class App {
     static Scanner scanner = new Scanner(System.in);
     static int RONDAS_TOTALES;
-    private static String carpetaGuardarRedesNeuronales = "redesNeuronales/";
+    private static String carpetaGuardarRedesNeuronales = "redesNeuronales/mejores/";
 
     public static void main(String[] args) throws Exception {
         
@@ -19,9 +19,9 @@ public class App {
             jugadores.add(jugador);
         }
 
-        for(int k = 1; k < 4; k++){
+        for(int k = 1; k <= 3; k++){
             IA ia = new IA(jugadores.get(k), k, jugadores, null);
-            ia.recuperarRedNeuronal(carpetaGuardarRedesNeuronales + "IA_" + (k-1) + "_redNeuronal.dat");
+            ia.miRed.recuperarRedString(carpetaGuardarRedesNeuronales + "red" + String.valueOf(k) + ".txt");
             jugadores.get(k).setIA(ia);
         }
         

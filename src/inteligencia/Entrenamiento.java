@@ -268,7 +268,11 @@ public class Entrenamiento {
         IA nuevaIa = new IA(null,this.UltimoID , jugadores, cartasEnJuego);
 
         for (int k = 0; k < ia1.miRed.rDeNeuronas.size(); k++) {
+
+            // se obtiene el bias que pasara a la siguiente generacion
             nuevaIa.miRed.rDeNeuronas.get(k).bias = crossover(ia1.miRed.rDeNeuronas.get(k).bias, ia2.miRed.rDeNeuronas.get(k).bias);
+            
+            // se recombina las filas de cada W_matrix entre si
             nuevaIa.miRed.rDeNeuronas.get(k).w_matrix = crossover(ia1.miRed.rDeNeuronas.get(k).w_matrix, ia2.miRed.rDeNeuronas.get(k).w_matrix);
         }
 
