@@ -1,8 +1,5 @@
-## Getting Started
-
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
-
 # Presidente
+Antes de nada, la versión mas reciente del core está [aquí](https://github.com/pablorejo/presidente)
 En estos ficheros es donde está el core de la aplicacion del móvil, la lógica, además de la inteligencia artifical
 Estos ficheros so para entrenar la inteligencia artificial y para ver sus resultados en una fase inicial del proyecto.
 
