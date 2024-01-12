@@ -118,11 +118,9 @@ public class Jugador{
 
     /**
      * Esta función echa las cartas mas bajas que tenga el jugador con la condicion de que supere un cierto tamano y valor
-     * @param tamano numero de cartas de igual valor que se necesitan para jugar
-     * @param valor las cartas tendran que tener mas de este valor para poder jugar
      * @return Un objeto Mano que contendrá las cartas que decidio echar.
      */
-    public Mano echarCarta(int tamano, int valor){
+    public Mano echarCarta(){
         this.ia.jugador = this;
 
         if (this.verbose){

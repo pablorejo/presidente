@@ -21,6 +21,7 @@ public class IA {
     public ArrayList<Jugador> jugadores;
     public CartasEnJuego cartasEnJuego;
     private int puntos = 0;
+    private boolean verbose = false;
 
     public IA(Jugador jugador, int ID, ArrayList<Jugador> jugadores, CartasEnJuego cartasEnJuego){
         this.jugadores = jugadores;
@@ -114,14 +115,56 @@ public class IA {
         //#endregion concatenar los vectores
 
         Double[][] vectorEntrada = new Double[1][vector.length];
+
+        if (verbose){
+            System.out.println("cartasEnLaMesa" + printVector(cartasEnLaMesa));
+            System.out.println("cartasDelJugador" + printVector(cartasDelJugador));
+            System.out.println("cartasEchadas" + printVector(cartasEchadas));
+            System.out.println("cartasOtrosJugadores" + printVector(cartasOtrosJugadores));
+            System.out.println("tamañoCartas" + printVector(tamañoCartas));
+            System.out.println("vecesQuePasa" + printVector(vecesQuePasa));
+        }
+
+
         for (int i = 0; i < vector.length; i++) {
             vectorEntrada[0][i] = (double) vector[i];
         }
 
         Double[][] vectorSalida = miRed.predict(vectorEntrada);
 
+
+        if (verbose){
+            printVectorSalida(vectorSalida[0]);
+        }
+
         return vectorSalida;
     }
+
+
+    private String printVector(int[] cartasEnLaMesa){
+        String salida = "[\n";
+        for (int i : cartasEnLaMesa) {
+            salida +=i+" \n";
+        }
+        salida +="]\n";
+        return salida;
+    }
+
+    private void printVectorSalida(Double[] vectorSalida){
+        String salida = "[\n";
+        int i = 0;
+        for (Carta carta : this.jugador.mano.cartas) {
+            carta.setPonderacion(vectorSalida[i]);
+            System.out.println("Carta: " + carta.getCarta() +" Ponderacion: "+ carta.getPonderacion());
+            i++;
+        }
+
+        this.jugador.verMano();
+       
+    }
+
+    
+
 
     private Mano obtenerLasNPeores(int n,Double[][] cartas){
         int i = 0;

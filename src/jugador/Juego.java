@@ -121,7 +121,7 @@ public class Juego {
                     if (!jugadores.get(turno).getFinalPartida()){
                         switch (turno) {
                             default:
-                                jugarJugador(cartasEnJuego,jugadores.get(turno),tamano,nJugadoresPasan);
+                                jugarJugador(cartasEnJuego,jugadores.get(turno),nJugadoresPasan);
                                 break;
                         }
                         
@@ -192,13 +192,9 @@ public class Juego {
         }  
     }
    
-    public static void jugarJugador(CartasEnJuego cartasEnJuego, Jugador jugador, int tamano, int nJugadoresPasan){
+    public static void jugarJugador(CartasEnJuego cartasEnJuego, Jugador jugador, int nJugadoresPasan){
 
-        int valor = 0;
-        if (cartasEnJuego.ultiMano() != null && cartasEnJuego.ultiMano().cartas.size()>0){
-            valor = cartasEnJuego.ultiMano().cartas.get(0).getValor();
-        }
-        Mano mano = jugador.echarCarta(tamano,valor);
+        Mano mano = jugador.echarCarta();
         if (mano.cartas.size() == 0){
             jugador.siPasa();
             cartasEnJuego.manos.add(new Mano(new ArrayList<Carta>(), jugador));

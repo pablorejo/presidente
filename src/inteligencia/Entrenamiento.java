@@ -17,7 +17,7 @@ public class Entrenamiento {
     ArrayList<Jugador> jugadores;
     CartasEnJuego cartasEnJuego;
     private static double probabilidadMutacion = 0.05;// probabilidad de que una parte de la matriz mute de manera aleatoria.
-    private static int numeroTotalDeIAs = 150; // Numero total de ias en cada generación.
+    private static int numeroTotalDeIAs = 1000; // Numero total de ias en cada generación.
 
     private static int numeroDeEntrenamientos = 100000;// Numero de generaciones.
     private static Double desgaste = 0.95; // Las peores ias tendran menos probabilidad de fusionarse con respecto a este desgaste.
